@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 9: Docker Networking Deep Dive"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-10T12:00:00+03:00
 draft: false
 tags: ["linux", "guide"]
 description: "Everything you need to know to get started."

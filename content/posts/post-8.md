@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 8: Redis Caching Patterns"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-09T12:00:00+03:00
 draft: false
 tags: ["docker", "deep-dive"]
 description: "Practical tips from real-world experience."

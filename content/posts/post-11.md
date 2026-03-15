@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 11: Monitoring with Prometheus"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-12T12:00:00+03:00
 draft: false
 tags: ["linux", "til"]
 description: "Everything you need to know to get started."

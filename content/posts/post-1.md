@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 1: Linux Kernel Debugging"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-02T12:00:00+03:00
 draft: false
 tags: ["kubernetes", "guide"]
 description: "Lessons learned from production incidents."

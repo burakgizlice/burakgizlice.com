@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 3: Git Internals Explained"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-04T12:00:00+03:00
 draft: false
 tags: ["networking", "deep-dive"]
 description: "Everything you need to know to get started."

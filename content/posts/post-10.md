@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 10: Nginx Reverse Proxy Setup"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-11T12:00:00+03:00
 draft: false
 tags: ["automation", "tutorial"]
 description: "How we scaled our system to handle 10x traffic."

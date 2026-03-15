@@ -1,14 +1,7 @@
-{{ $paginator := .Paginator }}
-{{ if .IsHome }}
-  {{ $posts := where .Site.RegularPages "Section" "posts" }}
-  {{ $paginator = .Paginate ($posts) }}
-{{ else }}
-  {{ $currentSection := .Section }}
-  {{ $posts := where .Site.Pages "Section" $currentSection }}
-  {{ $paginator = .Paginate ($posts) }}
-{{ end }}
+{{ $posts := where .Site.RegularPages "Section" "posts" }}
+{{ $paginator := .Paginate $posts }}
 <div class="cards" id="results">
-    {{ range .Paginator.Pages }}
+    {{ range $paginator.Pages }}
         <div class="card h-entry">
             <a href="{{ .Permalink }}" class="u-url">
                 {{ with .Params.image }}

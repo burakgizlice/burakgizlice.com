@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 2: Building a CI Pipeline"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-03T12:00:00+03:00
 draft: false
 tags: ["devops", "guide"]
 description: "Lessons learned from production incidents."

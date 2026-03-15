@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 6: Building a CI Pipeline"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-07T12:00:00+03:00
 draft: false
 tags: ["infrastructure", "guide"]
 description: "A deep dive into modern infrastructure practices."

@@ -1,6 +1,6 @@
 ---
 title: "Sample Post 7: PostgreSQL Performance Tuning"
-date: 2026-03-17T12:00:00+03:00
+date: 2026-03-08T12:00:00+03:00
 draft: false
 tags: ["kubernetes", "til"]
 description: "Lessons learned from production incidents."
