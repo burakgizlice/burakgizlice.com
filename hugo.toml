@@ -57,27 +57,3 @@ summaryLength = 30
     icon = "/social/email.png"
     name = "Email"
 
-[menu]
-  [[menu.main]]
-    identifier = "posts"
-    name = "Posts"
-    url = "/posts/"
-    weight = 1
-
-  [[menu.main]]
-    identifier = "series"
-    name = "Series"
-    url = "/series/"
-    weight = 2
-
-  [[menu.main]]
-    identifier = "tags"
-    name = "Topics"
-    url = "/tags/"
-    weight = 3
-
-  [[menu.main]]
-    identifier = "about"
-    name = "About"
-    url = "/about/"
-    weight = 4
