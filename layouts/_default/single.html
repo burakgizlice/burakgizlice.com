@@ -14,6 +14,7 @@
                 <time class="dt-published" datetime="{{ .Date }}">
                     <a class="u-url" href="{{ .Permalink }}">{{ .Date | time.Format ":date_medium" }}</a>
                 </time>
+                <span class="reading-time">&nbsp;·&nbsp;{{ .ReadingTime }} min read</span>
                 <span rel="author" class="p-author h-card">
                     <img class="u-photo hidden" src="{{ with .Site.Params.authorImage }}{{ . }}{{ end }}" />
                     <span class="p-name hidden" rel="me">{{ with .Params.author }}{{ . }}{{ else }}{{ .Site.Params.authorName }}{{ end }}</span>
