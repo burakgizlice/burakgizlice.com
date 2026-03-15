@@ -3,7 +3,7 @@ title: "Sample Post 6: Building a CI Pipeline"
 date: 2026-03-07T12:00:00+03:00
 draft: false
 tags: ["infrastructure", "guide"]
-description: "A deep dive into modern infrastructure practices."
+description: "Tuning PostgreSQL for high-throughput workloads — connection pooling, query optimization, indexing strategies, and vacuum tuning from our production setup."
 ---
 
 Every engineer should understand networking fundamentals. The key insight is that simplicity beats cleverness every time.

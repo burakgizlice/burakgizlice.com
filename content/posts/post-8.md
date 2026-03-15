@@ -3,7 +3,7 @@ title: "Sample Post 8: Redis Caching Patterns"
 date: 2026-03-09T12:00:00+03:00
 draft: false
 tags: ["docker", "deep-dive"]
-description: "Practical tips from real-world experience."
+description: "Understanding Git from the inside out — blobs, trees, commits, and refs. Once you know the object model, everything else clicks into place."
 ---
 
 Lorem ipsum dolor sit amet, consectetur adipiscing elit. What surprised me most was how much impact a small change can have.

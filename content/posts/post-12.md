@@ -3,7 +3,7 @@ title: "Sample Post 12: Nginx Reverse Proxy Setup"
 date: 2026-03-13T12:00:00+03:00
 draft: false
 tags: ["docker", "guide"]
-description: "Lessons learned from production incidents."
+description: "Step-by-step guide to setting up Nginx as a reverse proxy with SSL termination, rate limiting, and upstream health checks for production services."
 ---
 
 Every engineer should understand networking fundamentals. This is something I learned the hard way after years of working with distributed systems.
