@@ -1,0 +1,11 @@
+.comments-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+}
+
+@media (min-width: 601px) {
+    .comments-section {
+        padding: 2rem 2rem;
+    }
+}

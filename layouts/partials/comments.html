@@ -1,6 +1,6 @@
 {{ if not (eq .Params.comments false) }}
 {{ with .Site.Params.giscus }}
-<section class="comments container">
+<section class="comments-section">
     <script src="https://giscus.app/client.js"
         data-repo="{{ .repo }}"
         data-repo-id="{{ .repoId }}"
