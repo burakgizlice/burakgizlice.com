@@ -48,12 +48,19 @@ summaryLength = 30
     name = "GitHub"
 
   [[params.social]]
-    url = "https://medium.com/@burakgizlice"
-    icon = "/social/medium.svg"
-    name = "Medium"
-
-  [[params.social]]
     url = "mailto:gizliceburak@gmail.com"
     icon = "/social/email.png"
     name = "Email"
 
+[menu]
+  [[menu.main]]
+    identifier = "posts"
+    name = "Posts"
+    url = "/posts/"
+    weight = 1
+
+  [[menu.main]]
+    identifier = "me"
+    name = "Me"
+    url = "/me/"
+    weight = 2
