@@ -21,6 +21,8 @@ summaryLength = 30
 [params]
   numImages = 10
   useToc = true
+  authorName = "Burak Gizlice"
+  authorImage = "https://github.com/burakgizlice.png"
   contact = "You can write me an [email](mailto:gizliceburak@gmail.com)."
 
   [[params.social]]
