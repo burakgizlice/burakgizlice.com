@@ -1,6 +1,6 @@
 baseURL = "https://burakgizlice.com/"
 languageCode = "en-us"
-title = "Burak's Brain Dump"
+title = "Burak Gizlice"
 theme = "quint"
 
 enableRobotsTXT = true
