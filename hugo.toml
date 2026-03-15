@@ -1,0 +1,69 @@
+baseURL = "https://burakgizlice.com/"
+languageCode = "en-us"
+title = "Burak's Brain Dump"
+theme = "quint"
+
+enableRobotsTXT = true
+buildDrafts = false
+buildFuture = false
+buildExpired = false
+
+paginate = 6
+summaryLength = 30
+
+[taxonomies]
+  tag = "tags"
+  series = "series"
+
+[outputs]
+  home = ["HTML", "RSS", "JSON"]
+
+[params]
+  numImages = 10
+  useToc = true
+  contact = "You can write me an [email](mailto:gizliceburak@gmail.com)."
+
+  [[params.social]]
+    url = "https://linkedin.com/in/burakgizlice"
+    icon = "/social/linkedin.svg"
+    name = "LinkedIn"
+
+  [[params.social]]
+    url = "https://github.com/burakgizlice"
+    icon = "/social/github.svg"
+    name = "GitHub"
+
+  [[params.social]]
+    url = "https://medium.com/@burakgizlice"
+    icon = "/social/medium.svg"
+    name = "Medium"
+
+  [[params.social]]
+    url = "mailto:gizliceburak@gmail.com"
+    icon = "/social/email.png"
+    name = "Email"
+
+[menu]
+  [[menu.main]]
+    identifier = "posts"
+    name = "Posts"
+    url = "/posts/"
+    weight = 1
+
+  [[menu.main]]
+    identifier = "series"
+    name = "Series"
+    url = "/series/"
+    weight = 2
+
+  [[menu.main]]
+    identifier = "tags"
+    name = "Topics"
+    url = "/tags/"
+    weight = 3
+
+  [[menu.main]]
+    identifier = "about"
+    name = "About"
+    url = "/about/"
+    weight = 4
