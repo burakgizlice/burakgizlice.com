@@ -34,7 +34,7 @@ summaryLength = 30
     reactionsEnabled = "1"
     emitMetadata = "0"
     inputPosition = "bottom"
-    theme = "preferred_color_scheme"
+    theme = "https://burakgizlice.com/css/giscus-custom.css"
     lang = "en"
 
   [[params.social]]
