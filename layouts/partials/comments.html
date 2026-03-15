@@ -1,0 +1,21 @@
+{{ if not (eq .Params.comments false) }}
+{{ with .Site.Params.giscus }}
+<section class="comments container">
+    <script src="https://giscus.app/client.js"
+        data-repo="{{ .repo }}"
+        data-repo-id="{{ .repoId }}"
+        data-category="{{ .category }}"
+        data-category-id="{{ .categoryId }}"
+        data-mapping="{{ .mapping }}"
+        data-strict="0"
+        data-reactions-enabled="{{ .reactionsEnabled }}"
+        data-emit-metadata="{{ .emitMetadata }}"
+        data-input-position="{{ .inputPosition }}"
+        data-theme="{{ .theme }}"
+        data-lang="{{ .lang }}"
+        crossorigin="anonymous"
+        async>
+    </script>
+</section>
+{{ end }}
+{{ end }}

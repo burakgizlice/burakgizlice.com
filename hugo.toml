@@ -25,6 +25,18 @@ summaryLength = 30
   authorImage = "https://github.com/burakgizlice.png"
   contact = "You can write me an [email](mailto:gizliceburak@gmail.com)."
 
+  [params.giscus]
+    repo = "burakgizlice/burakgizlice.com"
+    repoId = "R_kgDORn05og"
+    category = "General"
+    categoryId = "DIC_kwDORn05os4C4d3f"
+    mapping = "pathname"
+    reactionsEnabled = "1"
+    emitMetadata = "0"
+    inputPosition = "bottom"
+    theme = "preferred_color_scheme"
+    lang = "en"
+
   [[params.social]]
     url = "https://linkedin.com/in/burakgizlice"
     icon = "/social/linkedin.svg"
