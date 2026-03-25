@@ -6,7 +6,7 @@ import * as THREE from 'three';
 const CATEGORY_ORDER = ['reward', 'paper', 'mobility', 'project'];
 const CATEGORY_LABELS = { reward: 'Rewards', paper: 'Papers', mobility: 'Mobilities', project: 'Projects' };
 const CATEGORY_DEFAULTS = { project: 0x879094, mobility: 0x5b8a72, paper: 0x8a7b5b, reward: 0xc4a44a };
-const SHELF_WIDTH = 10;
+const SHELF_WIDTH = 12;
 const MAX_PER_ROW = 5;
 const SHELF_SPACING_Y = 2.0;
 const IDLE_ROTATION_SPEED = 0.003;
@@ -17,6 +17,8 @@ let scene, camera, renderer, raycaster, mouse;
 let itemGroups = [];
 let shelfMeshes = [];
 let labelSprites = [];
+let nameTagSprites = [];
+let yearBandSprites = [];
 let hoveredItem = null;
 let lastTouchedItem = null;
 let animationFrameId = null;
@@ -365,11 +367,335 @@ function createShelfLabel(text, yPosition) {
   texture.needsUpdate = true;
   const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
   const sprite = new THREE.Sprite(mat);
-  sprite.position.set(-5.3, yPosition + 0.6, 0);
+  sprite.position.set(-SHELF_WIDTH / 2 - 0.3, yPosition + 0.6, 0);
   sprite.scale.set(1.5, 0.4, 1);
   sprite.userData.labelText = text;
   labelSprites.push(sprite);
   return sprite;
+}
+
+function createNameTag(text, x, y, z) {
+  const fontSize = 32;
+  const font = fontSize + 'px OpenSauceOne, sans-serif';
+  const padding = 16;
+
+  // Measure text width with a temp canvas
+  const measure = document.createElement('canvas').getContext('2d');
+  measure.font = font;
+  const textWidth = measure.measureText(text).width;
+
+  // Size canvas to fit text exactly
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(textWidth + padding * 2);
+  canvas.height = Math.ceil(fontSize * 1.5);
+  const ctx = canvas.getContext('2d');
+
+  // Transparent background, white text
+  ctx.font = font;
+  ctx.fillStyle = 'rgba(255,255,255,0.75)';
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+  const texture = new THREE.CanvasTexture(canvas);
+  texture.needsUpdate = true;
+  const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, depthTest: false, depthWrite: false });
+  const sprite = new THREE.Sprite(mat);
+  sprite.renderOrder = 999;
+  sprite.position.set(x, y, z);
+
+  // Scale: fixed height, width proportional to text length
+  const spriteHeight = 0.16;
+  const aspect = canvas.width / canvas.height;
+  sprite.scale.set(spriteHeight * aspect, spriteHeight, 1);
+
+  sprite.userData.labelText = text;
+  sprite.userData.isNameTag = true;
+  nameTagSprites.push(sprite);
+  return sprite;
+}
+
+function getDigitShape(digit) {
+  const s = new THREE.Shape();
+  const w = 0.18; // digit width
+  const h = 0.32; // digit height
+  const t = 0.04; // stroke thickness
+  const r = 0.02; // corner radius
+
+  switch (digit) {
+    case 0:
+      // Outer rounded rect
+      s.moveTo(r, 0);
+      s.lineTo(w - r, 0);
+      s.quadraticCurveTo(w, 0, w, r);
+      s.lineTo(w, h - r);
+      s.quadraticCurveTo(w, h, w - r, h);
+      s.lineTo(r, h);
+      s.quadraticCurveTo(0, h, 0, h - r);
+      s.lineTo(0, r);
+      s.quadraticCurveTo(0, 0, r, 0);
+      // Inner hole
+      const hole0 = new THREE.Path();
+      hole0.moveTo(t + r, t);
+      hole0.lineTo(w - t - r, t);
+      hole0.quadraticCurveTo(w - t, t, w - t, t + r);
+      hole0.lineTo(w - t, h - t - r);
+      hole0.quadraticCurveTo(w - t, h - t, w - t - r, h - t);
+      hole0.lineTo(t + r, h - t);
+      hole0.quadraticCurveTo(t, h - t, t, h - t - r);
+      hole0.lineTo(t, t + r);
+      hole0.quadraticCurveTo(t, t, t + r, t);
+      s.holes.push(hole0);
+      break;
+
+    case 1:
+      // Simple vertical bar, slightly offset right
+      const x1 = w * 0.35;
+      s.moveTo(x1, 0);
+      s.lineTo(x1 + t * 1.2, 0);
+      s.lineTo(x1 + t * 1.2, h);
+      s.lineTo(x1, h);
+      s.lineTo(x1, 0);
+      // Small foot
+      s.moveTo(x1 - t * 0.5, 0);
+      s.lineTo(x1 + t * 1.7, 0);
+      s.lineTo(x1 + t * 1.7, t * 0.6);
+      s.lineTo(x1 - t * 0.5, t * 0.6);
+      s.lineTo(x1 - t * 0.5, 0);
+      break;
+
+    case 2:
+      // Top arc + diagonal + bottom bar
+      s.moveTo(0, 0);
+      s.lineTo(w, 0);
+      s.lineTo(w, t);
+      s.lineTo(t * 1.5, t);
+      s.lineTo(w, h - t * 2.5);
+      s.lineTo(w, h - t);
+      s.quadraticCurveTo(w, h, w - r, h);
+      s.lineTo(r, h);
+      s.quadraticCurveTo(0, h, 0, h - r);
+      s.lineTo(0, h - t * 2.5);
+      s.lineTo(0, h - t * 2.5);
+      s.quadraticCurveTo(0, h - t, t, h - t);
+      s.lineTo(w - t * 1.5, h - t);
+      s.lineTo(0, t * 1.5);
+      s.lineTo(0, 0);
+      break;
+
+    case 3:
+      s.moveTo(0, 0);
+      s.lineTo(w, 0);
+      s.lineTo(w, r);
+      s.lineTo(w, h / 2 - t / 2);
+      s.lineTo(w * 0.5, h / 2 - t / 2);
+      s.lineTo(w * 0.5, h / 2 + t / 2);
+      s.lineTo(w, h / 2 + t / 2);
+      s.lineTo(w, h - r);
+      s.quadraticCurveTo(w, h, w - r, h);
+      s.lineTo(0, h);
+      s.lineTo(0, h - t);
+      s.lineTo(w - t, h - t);
+      s.lineTo(w - t, h / 2 + t / 2);
+      s.lineTo(w * 0.35, h / 2 + t / 2);
+      s.lineTo(w * 0.35, h / 2 - t / 2);
+      s.lineTo(w - t, h / 2 - t / 2);
+      s.lineTo(w - t, t);
+      s.lineTo(0, t);
+      s.lineTo(0, 0);
+      break;
+
+    case 4:
+      // Inverted L + vertical bar
+      const vx = w * 0.6;
+      s.moveTo(vx, 0);
+      s.lineTo(vx + t, 0);
+      s.lineTo(vx + t, h * 0.4 - t);
+      s.lineTo(w, h * 0.4 - t);
+      s.lineTo(w, h * 0.4);
+      s.lineTo(vx + t, h * 0.4);
+      s.lineTo(vx + t, h);
+      s.lineTo(vx, h);
+      s.lineTo(vx, h * 0.4);
+      s.lineTo(0, h * 0.4);
+      s.lineTo(0, h * 0.4 - t);
+      s.lineTo(vx, h * 0.4 - t);
+      s.lineTo(vx, 0);
+      break;
+
+    case 5:
+      s.moveTo(0, 0);
+      s.lineTo(w, 0);
+      s.lineTo(w, h / 2);
+      s.lineTo(t, h / 2);
+      s.lineTo(t, h - t);
+      s.lineTo(w, h - t);
+      s.lineTo(w, h);
+      s.lineTo(0, h);
+      s.lineTo(0, h / 2 - t);
+      s.lineTo(w - t, h / 2 - t);
+      s.lineTo(w - t, t);
+      s.lineTo(0, t);
+      s.lineTo(0, 0);
+      break;
+
+    case 6:
+      // Outer shape
+      s.moveTo(r, 0);
+      s.lineTo(w - r, 0);
+      s.quadraticCurveTo(w, 0, w, r);
+      s.lineTo(w, h / 2);
+      s.lineTo(t, h / 2);
+      s.lineTo(t, t);
+      s.lineTo(w - r, t);
+      s.lineTo(w - t, r + t);
+      s.lineTo(w - t, h / 2 - t);
+      s.lineTo(t, h / 2 - t);
+      s.lineTo(t, h - t - r);
+      s.quadraticCurveTo(t, h - t, t + r, h - t);
+      s.lineTo(w, h - t);
+      s.lineTo(w, h);
+      s.lineTo(r, h);
+      s.quadraticCurveTo(0, h, 0, h - r);
+      s.lineTo(0, r);
+      s.quadraticCurveTo(0, 0, r, 0);
+      break;
+
+    case 7:
+      s.moveTo(0, h);
+      s.lineTo(w, h);
+      s.lineTo(w * 0.35, 0);
+      s.lineTo(w * 0.35 - t, 0);
+      s.lineTo(w - t * 0.5, h - t);
+      s.lineTo(0, h - t);
+      s.lineTo(0, h);
+      break;
+
+    case 8:
+      // Outer rounded rect
+      s.moveTo(r, 0);
+      s.lineTo(w - r, 0);
+      s.quadraticCurveTo(w, 0, w, r);
+      s.lineTo(w, h - r);
+      s.quadraticCurveTo(w, h, w - r, h);
+      s.lineTo(r, h);
+      s.quadraticCurveTo(0, h, 0, h - r);
+      s.lineTo(0, r);
+      s.quadraticCurveTo(0, 0, r, 0);
+      // Bottom hole
+      const hole8b = new THREE.Path();
+      hole8b.moveTo(t, t);
+      hole8b.lineTo(w - t, t);
+      hole8b.lineTo(w - t, h / 2 - t / 2);
+      hole8b.lineTo(t, h / 2 - t / 2);
+      hole8b.lineTo(t, t);
+      s.holes.push(hole8b);
+      // Top hole
+      const hole8t = new THREE.Path();
+      hole8t.moveTo(t, h / 2 + t / 2);
+      hole8t.lineTo(w - t, h / 2 + t / 2);
+      hole8t.lineTo(w - t, h - t);
+      hole8t.lineTo(t, h - t);
+      hole8t.lineTo(t, h / 2 + t / 2);
+      s.holes.push(hole8t);
+      break;
+
+    case 9:
+      // Outer shape
+      s.moveTo(r, h);
+      s.lineTo(w - r, h);
+      s.quadraticCurveTo(w, h, w, h - r);
+      s.lineTo(w, r);
+      s.quadraticCurveTo(w, 0, w - r, 0);
+      s.lineTo(0, 0);
+      s.lineTo(0, t);
+      s.lineTo(w - t, t);
+      s.lineTo(w - t, h / 2 + t);
+      s.lineTo(t, h / 2 + t);
+      s.lineTo(t, h - t);
+      s.lineTo(w - t, h - t);
+      s.lineTo(w - t, h / 2);
+      s.lineTo(0, h / 2);
+      s.lineTo(0, h - r);
+      s.quadraticCurveTo(0, h, r, h);
+      break;
+
+    default:
+      // Fallback: simple rectangle
+      s.moveTo(0, 0);
+      s.lineTo(w, 0);
+      s.lineTo(w, h);
+      s.lineTo(0, h);
+      s.lineTo(0, 0);
+  }
+  return s;
+}
+
+function createDigitMesh(digit, color) {
+  const shape = getDigitShape(digit);
+  const geometry = new THREE.ExtrudeGeometry(shape, {
+    depth: 0.06,
+    bevelEnabled: true,
+    bevelThickness: 0.01,
+    bevelSize: 0.01,
+    bevelSegments: 2,
+  });
+  const material = new THREE.MeshStandardMaterial({
+    color: color,
+    metalness: 0.5,
+    roughness: 0.4,
+  });
+  const mesh = new THREE.Mesh(geometry, material);
+  mesh.castShadow = true;
+  mesh.userData.partRole = 'yearDigit';
+  return mesh;
+}
+
+function createYearObject(year) {
+  const group = new THREE.Group();
+  const digits = String(year).split('');
+  const digitWidth = 0.22;
+  const digitGap = 0.04;
+  const totalWidth = digits.length * digitWidth + (digits.length - 1) * digitGap;
+  const digitColor = 0xffffff;
+  const tapeColor = 0xffffff;
+
+  // Tape base — slightly wider than digits
+  const baseWidth = totalWidth + 0.12;
+  const baseGeom = new THREE.BoxGeometry(baseWidth, 0.03, 0.2);
+  const baseMat = new THREE.MeshStandardMaterial({
+    color: tapeColor,
+    metalness: 0.1,
+    roughness: 0.8,
+    transparent: true,
+    opacity: 0.85,
+  });
+  const base = new THREE.Mesh(baseGeom, baseMat);
+  base.position.set(0, 0.015, 0);
+  base.castShadow = true;
+  base.userData.partRole = 'yearTapeBase';
+  group.add(base);
+
+  // Place each digit on the base
+  digits.forEach((d, i) => {
+    const mesh = createDigitMesh(parseInt(d), digitColor);
+    const x = -totalWidth / 2 + i * (digitWidth + digitGap);
+    mesh.position.set(x, 0.03, -0.03);
+    group.add(mesh);
+  });
+
+  group.rotation.y = Math.PI / 4;
+  group.userData.isYearObject = true;
+  group.userData.shapeHeight = 0.38;
+  return group;
+}
+
+function createYearBand(year, x, shelfY) {
+  const yearObj = createYearObject(year);
+  yearObj.position.set(x, shelfY + 0.15, 0);
+  yearObj.userData.year = year;
+  yearBandSprites.push(yearObj);
+  return yearObj;
 }
 
 function buildShelves(items, mode) {
@@ -377,11 +703,11 @@ function buildShelves(items, mode) {
   let rowIndex = 0;
 
   if (mode === 'all') {
-    const sorted = [...items].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sorted = [...items].sort((a, b) => new Date(b.date) - new Date(a.date));
     const totalRows = Math.max(1, Math.ceil(sorted.length / MAX_PER_ROW));
     shelfMap['all'] = [];
     for (let r = 0; r < totalRows; r++) {
-      const y = r * SHELF_SPACING_Y;
+      const y = (totalRows - 1 - r) * SHELF_SPACING_Y;
       const shelfMesh = createShelfMesh(y);
       scene.add(shelfMesh);
       shelfMap['all'].push({
@@ -847,6 +1173,35 @@ function updateShelfLabels(dark) {
     sprite.material.needsUpdate = true;
     if (oldTexture) oldTexture.dispose();
   });
+
+  nameTagSprites.forEach((sprite) => {
+    const text = sprite.userData.labelText;
+    const fontSize = 32;
+    const font = fontSize + 'px OpenSauceOne, sans-serif';
+    const padding = 16;
+
+    const measure = document.createElement('canvas').getContext('2d');
+    measure.font = font;
+    const textWidth = measure.measureText(text).width;
+
+    const canvas = document.createElement('canvas');
+    canvas.width = Math.ceil(textWidth + padding * 2);
+    canvas.height = Math.ceil(fontSize * 1.5);
+    const ctx = canvas.getContext('2d');
+    ctx.font = font;
+    ctx.fillStyle = dark ? 'rgba(255,255,255,0.75)' : 'rgba(53,61,73,0.75)';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+
+    const oldTexture = sprite.material.map;
+    sprite.material.map = new THREE.CanvasTexture(canvas);
+    sprite.material.map.needsUpdate = true;
+    sprite.material.needsUpdate = true;
+    if (oldTexture) oldTexture.dispose();
+  });
+
+  // Year band 3D digits use MeshStandardMaterial — no texture updates needed
 }
 
 // ──────────────────────────────────────────
@@ -877,9 +1232,28 @@ function clearScene() {
     s.material.dispose();
   });
 
+  nameTagSprites.forEach((s) => {
+    scene.remove(s);
+    if (s.material.map) s.material.map.dispose();
+    s.material.dispose();
+  });
+
+  yearBandSprites.forEach((g) => {
+    scene.remove(g);
+    g.traverse((c) => {
+      if (c.geometry) c.geometry.dispose();
+      if (c.material) {
+        if (c.material.map) c.material.map.dispose();
+        c.material.dispose();
+      }
+    });
+  });
+
   itemGroups = [];
   shelfMeshes = [];
   labelSprites = [];
+  nameTagSprites = [];
+  yearBandSprites = [];
 }
 
 function switchViewMode(newMode) {
@@ -935,40 +1309,67 @@ function placeItems(items, shelfMap, mode) {
   const now = performance.now();
 
   if (mode === 'all') {
-    const sorted = [...items].sort((a, b) => new Date(a.date) - new Date(b.date));
+    const sorted = [...items].sort((a, b) => new Date(b.date) - new Date(a.date));
     const rows = shelfMap['all'] || [];
 
     rows.forEach((row) => {
       const rowItems = sorted.slice(row.startIndex, row.endIndex);
-      const numItems = rowItems.length;
-      const spacing = SHELF_WIDTH / (numItems + 1);
+
+      // Build slot list: items first, then year tape after each year group
+      // Order: [2026 items] [2026 tape] [2025 items] [2025 tape] ...
+      const slots = [];
 
       rowItems.forEach((item, i) => {
-        const color = item.accentColor
-          ? new THREE.Color(item.accentColor)
-          : new THREE.Color(CATEGORY_DEFAULTS[item.itemType] || 0x879094);
+        const curYear = new Date(item.date).getFullYear();
+        slots.push({ type: 'item', item });
+        // Insert year tape after this item if the next item is a different year or this is the last item in the row
+        const nextYear = i < rowItems.length - 1 ? new Date(rowItems[i + 1].date).getFullYear() : null;
+        if (nextYear === null || nextYear !== curYear) {
+          slots.push({ type: 'year', year: curYear });
+        }
+      });
 
-        const group = createShape(item.itemType, color);
-        const x = -SHELF_WIDTH / 2 + spacing * (i + 1);
-        const y = row.y + 0.15;
-        group.position.set(x, y, 0);
+      const totalSlots = slots.length;
+      const spacing = SHELF_WIDTH / (totalSlots + 1);
 
-        group.userData.title = item.title;
-        group.userData.description = item.description;
-        group.userData.link = item.url;
-        group.userData.tags = item.tags;
-        group.userData.itemType = item.itemType;
-        group.userData.originalY = y;
+      slots.forEach((slot, si) => {
+        const x = -SHELF_WIDTH / 2 + spacing * (si + 1);
 
-        group.rotation.y = Math.random() * Math.PI * 2;
-        group.scale.set(0, 0, 0);
-        group.userData.entranceStartTime = now + globalIndex * 120;
-        group.userData.entranceComplete = false;
+        if (slot.type === 'year') {
+          const band = createYearBand(slot.year, x, row.y);
+          scene.add(band);
+        } else {
+          const item = slot.item;
+          const color = item.accentColor
+            ? new THREE.Color(item.accentColor)
+            : new THREE.Color(CATEGORY_DEFAULTS[item.itemType] || 0x879094);
 
-        applyPlaque(group, item);
-        scene.add(group);
-        itemGroups.push(group);
-        globalIndex++;
+          const group = createShape(item.itemType, color);
+          const y = row.y + 0.15;
+          group.position.set(x, y, 0);
+
+          group.userData.title = item.title;
+          group.userData.description = item.description;
+          group.userData.link = item.url;
+          group.userData.tags = item.tags;
+          group.userData.itemType = item.itemType;
+          group.userData.originalY = y;
+
+          group.rotation.y = Math.random() * Math.PI * 2;
+          group.scale.set(0, 0, 0);
+          group.userData.entranceStartTime = now + globalIndex * 120;
+          group.userData.entranceComplete = false;
+
+          applyPlaque(group, item);
+          scene.add(group);
+          itemGroups.push(group);
+
+          // Floating name tag below the object
+          const tag = createNameTag(item.title, x, row.y - 0.15, 1.0);
+          scene.add(tag);
+
+          globalIndex++;
+        }
       });
     });
   } else {
@@ -1021,6 +1422,11 @@ function placeItems(items, shelfMap, mode) {
           applyPlaque(group, item);
           scene.add(group);
           itemGroups.push(group);
+
+          // Floating name tag below the object
+          const tag = createNameTag(item.title, x, row.y - 0.15, 1.0);
+          scene.add(tag);
+
           globalIndex++;
         });
       });
@@ -1128,4 +1534,9 @@ function main() {
   }
 }
 
-main();
+// Wait for fonts to load so canvas text renders with OpenSauceOne
+if (document.fonts && document.fonts.ready) {
+  document.fonts.ready.then(main);
+} else {
+  main();
+}

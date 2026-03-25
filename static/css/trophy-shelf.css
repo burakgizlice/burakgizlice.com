@@ -3,7 +3,7 @@
   position: relative;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: -2rem auto 0;
 }
 
 #trophy-shelf-container canvas {
@@ -75,10 +75,9 @@
 /* ── Page Header ── */
 .works-header {
   text-align: center;
-  padding: 2rem 1rem 0.75rem;
+  padding: 1rem 1rem 0.5rem;
   font-family: 'OpenSauceOne', sans-serif;
   margin-bottom: 0;
-  border-bottom: 1px solid var(--borders);
 }
 
 .works-header h1 {
