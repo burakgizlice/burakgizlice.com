@@ -1,0 +1,326 @@
+{
+  "feature": "Optional Grouping Toggle + Camera Angle Fix",
+  "version": "1.0",
+  "description": "Two changes: (1) Default view puts ALL items on shared shelf rows (no category grouping). A toggle button switches to grouped-by-type view. (2) Camera angles are adjusted so no shelf is viewed from a steep up/down angle — every shelf should feel like you're looking at it roughly at eye level or with a gentle downward tilt.",
+
+  "problem_analysis": {
+    "angle_issue": {
+      "current_behavior": "4 shelves stacked at y=0, 3, 6, 9. Camera at y=4.5, z~12. Bottom shelf (Projects, y=0) is viewed steeply from above. Top shelf (Rewards, y=9) is viewed from below, looking upward. The further a shelf is from camera center, the more distorted the viewing angle.",
+      "root_cause": "SHELF_SPACING_Y = 3.0 is too large relative to camera distance. Combined with FOV 45°, this creates extreme perspective foreshortening at the top and bottom shelves.",
+      "user_feedback": "Projects angle is 'too much'. Mobilities viewed 'from way too bottom'. User likes the varying-angle shelf effect but wants it subtle."
+    },
+    "grouping_issue": {
+      "current_behavior": "Items are always grouped by category, one shelf per category. This creates 4 shelves for 4 items — feels sparse.",
+      "desired_behavior": "Default: all items mixed on shared shelves (max 5 per row). Optional: toggle to group by type with category labels."
+    }
+  },
+
+  "changes": {
+    "change_1_view_modes": {
+      "description": "Add two view modes: 'all' (default) and 'grouped'. A toggle button switches between them. The scene rebuilds shelves and replaces items with an animation.",
+
+      "view_mode_all": {
+        "description": "All items on shared shelves, sorted by date (newest right). No category labels. Mixed shapes on same shelf.",
+        "shelf_logic": "Total items / MAX_PER_ROW rows. Items sorted globally by date ascending.",
+        "labels": "None — no labels in this mode."
+      },
+
+      "view_mode_grouped": {
+        "description": "Current behavior — one shelf section per category, each with a label.",
+        "shelf_logic": "Same as current buildShelves() — group by itemType, one shelf per category.",
+        "labels": "Category labels on left edge of each category's first shelf row."
+      },
+
+      "toggle_button": {
+        "html_location": "Inside the works-header section, below the description paragraph",
+        "html": "<button id='shelf-view-toggle' class='shelf-toggle-btn'>Group by type</button>",
+        "behavior": {
+          "when_mode_is_all": "Button text says 'Group by type'. Clicking switches to grouped mode.",
+          "when_mode_is_grouped": "Button text says 'Show all'. Clicking switches to all mode."
+        },
+        "styling": {
+          "appearance": "Minimal pill button matching theme. No background fill — just a border + text. On hover: subtle fill.",
+          "css": {
+            "selector": ".shelf-toggle-btn",
+            "properties": {
+              "font-family": "'OpenSauceOne', sans-serif",
+              "font-size": "0.8rem",
+              "padding": "6px 16px",
+              "border": "1px solid var(--borders)",
+              "border-radius": "20px",
+              "background": "transparent",
+              "color": "var(--link-color)",
+              "cursor": "pointer",
+              "transition": "background 0.2s, color 0.2s",
+              "margin-top": "0.75rem"
+            }
+          },
+          "css_hover": {
+            "selector": ".shelf-toggle-btn:hover",
+            "properties": {
+              "background": "var(--link-color)",
+              "color": "var(--primary-bg)"
+            }
+          }
+        }
+      },
+
+      "transition_animation": {
+        "description": "When switching modes, items scale down to 0, shelves/labels are removed and rebuilt, items scale back up.",
+        "steps": [
+          "1. Disable toggle button (prevent double-click)",
+          "2. Scale all existing item groups to 0 over 300ms (lerp in animate loop)",
+          "3. Once all at scale 0: remove all itemGroups, shelfMeshes, labelSprites from scene. Dispose geometry/materials.",
+          "4. Clear the arrays: itemGroups = [], shelfMeshes = [], labelSprites = []",
+          "5. Call buildShelves() with new mode logic",
+          "6. Call placeItems() — items start at scale 0 with entrance animation",
+          "7. Recalculate camera position for new shelf layout",
+          "8. Re-enable toggle button"
+        ],
+        "exit_animation_duration_ms": 300,
+        "note": "The entrance animation from placeItems() handles the scale-up. Total transition feels ~600ms."
+      },
+
+      "state_variable": {
+        "name": "currentViewMode",
+        "type": "string",
+        "values": ["all", "grouped"],
+        "default": "all"
+      }
+    },
+
+    "change_2_camera_angles": {
+      "description": "Reduce vertical spacing and adjust camera to ensure every shelf is viewed from a comfortable, near-level angle. The gentle variation in viewing angle per shelf is preserved but capped.",
+
+      "new_constants": {
+        "SHELF_SPACING_Y": {
+          "old": 3.0,
+          "new": 2.0,
+          "reason": "Tighter spacing reduces the vertical spread. With 4 shelves, total height goes from 9.0 to 6.0 — much less extreme angles at top/bottom."
+        },
+        "CAMERA_FOV": {
+          "old": 45,
+          "new": 35,
+          "reason": "Lower FOV compresses perspective, making shelves at different heights feel more similar in angle. Compensated by pulling camera back slightly."
+        }
+      },
+
+      "new_camera_positioning": {
+        "description": "Camera is positioned slightly above center and further back. This creates a gentle overall downward tilt (like looking at a wall shelf from standing height), and no shelf is at an extreme angle.",
+        "formula": {
+          "totalShelfHeight": "(totalRows - 1) * SHELF_SPACING_Y",
+          "baseCameraY": "totalShelfHeight / 2 + 0.5",
+          "cameraZ": "10 + (totalRows - 1) * 1.0",
+          "note": "The +0.5 on Y raises the camera slightly above center, giving a natural 'standing and looking at wall shelves' feel. The Z is further back with a gentler per-row multiplier."
+        },
+        "lookAt": "{ x: 0, y: totalShelfHeight / 2, z: 0 }",
+        "note": "lookAt targets the true center (not the raised camera Y), creating the gentle downward tilt."
+      },
+
+      "viewing_angle_analysis": {
+        "with_4_shelves_old": {
+          "total_height": 9.0,
+          "camera_y": 4.5,
+          "camera_z": 12.5,
+          "bottom_shelf_angle": "~20° downward (steep)",
+          "top_shelf_angle": "~20° upward (steep)"
+        },
+        "with_4_shelves_new": {
+          "total_height": 6.0,
+          "camera_y": 3.5,
+          "camera_z": 13,
+          "bottom_shelf_angle": "~15° downward (comfortable)",
+          "top_shelf_angle": "~11° upward (gentle)"
+        },
+        "with_1_shelf_all_mode": {
+          "total_height": 0,
+          "camera_y": 0.5,
+          "camera_z": 10,
+          "angle": "~3° downward (nearly level, perfect)"
+        }
+      }
+    }
+  },
+
+  "implementation_steps": [
+    {
+      "step": "1",
+      "action": "Add toggle button HTML to layouts/works/list.html",
+      "file": "layouts/works/list.html",
+      "change": "Add <button id='shelf-view-toggle' class='shelf-toggle-btn'>Group by type</button> inside the .works-header section, after the <p> description tag.",
+      "verify": "Button appears on /works/ page below the description."
+    },
+    {
+      "step": "2",
+      "action": "Add toggle button CSS to static/css/trophy-shelf.css",
+      "file": "static/css/trophy-shelf.css",
+      "change": "Add .shelf-toggle-btn and .shelf-toggle-btn:hover styles.",
+      "verify": "Button is styled as a minimal pill, hover shows fill."
+    },
+    {
+      "step": "3",
+      "action": "Update constants in trophy-shelf.js",
+      "file": "static/js/trophy-shelf.js",
+      "changes": [
+        "SHELF_SPACING_Y = 3.0 → 2.0",
+        "Add: let currentViewMode = 'all';",
+        "Add: let allItems = []; (stores the original items array for rebuilds)"
+      ],
+      "verify": "Constants updated, no runtime errors."
+    },
+    {
+      "step": "4",
+      "action": "Update camera setup in initScene()",
+      "file": "static/js/trophy-shelf.js",
+      "changes": [
+        "Change FOV from 45 to 35",
+        "Change baseCameraY formula to: totalShelfHeight / 2 + 0.5",
+        "Change camera Z formula to: 10 + (totalRows - 1) * 1.0",
+        "lookAt targets (0, totalShelfHeight / 2, 0) — NOT the raised camera Y"
+      ],
+      "verify": "Shelves are viewed from more comfortable angles. No shelf has extreme up/down perspective."
+    },
+    {
+      "step": "5",
+      "action": "Refactor buildShelves() to support both modes",
+      "file": "static/js/trophy-shelf.js",
+      "change": "Add a 'mode' parameter to buildShelves(items, mode). When mode === 'all': sort all items by date, distribute across rows of MAX_PER_ROW, no labels. When mode === 'grouped': existing behavior (group by category, add labels). Return shelfMap in both cases.",
+      "detail": {
+        "mode_all_logic": [
+          "1. Sort all items by date ascending",
+          "2. totalRows = Math.ceil(items.length / MAX_PER_ROW)",
+          "3. For each row r (0 to totalRows-1):",
+          "   - Create shelf at y = r * SHELF_SPACING_Y",
+          "   - No label",
+          "   - shelfMap['all'] = [{ y, startIndex: r*5, endIndex: min((r+1)*5, items.length) }]",
+          "4. Return shelfMap"
+        ],
+        "mode_grouped_logic": "Existing buildShelves logic unchanged."
+      },
+      "verify": "buildShelves(items, 'all') creates correct number of rows. buildShelves(items, 'grouped') still works as before."
+    },
+    {
+      "step": "6",
+      "action": "Refactor placeItems() to support both modes",
+      "file": "static/js/trophy-shelf.js",
+      "change": "Add a 'mode' parameter. When mode === 'all': iterate shelfMap['all'] rows, place items in date order regardless of type. When mode === 'grouped': existing behavior.",
+      "detail": {
+        "mode_all_logic": [
+          "1. Sort all items by date ascending",
+          "2. For each row in shelfMap['all']:",
+          "   - Slice items[startIndex:endIndex]",
+          "   - Place on shelf using same spacing formula",
+          "   - Each item still gets its correct shape via createShape(item.itemType, ...)"
+        ]
+      },
+      "verify": "In 'all' mode, all 4 sample items appear on one shelf row, mixed shapes, sorted by date."
+    },
+    {
+      "step": "7",
+      "action": "Add computeRowCount() helper",
+      "file": "static/js/trophy-shelf.js",
+      "change": "Extract the row-counting logic from initScene() into a helper function computeRowCount(items, mode) so it can be reused during mode transitions.",
+      "verify": "Helper returns correct count for both modes."
+    },
+    {
+      "step": "8",
+      "action": "Add clearScene() function",
+      "file": "static/js/trophy-shelf.js",
+      "change": "New function that removes and disposes all item groups, shelf meshes, and label sprites from the scene. Clears the arrays. Does NOT touch the camera, lights, or renderer.",
+      "logic": [
+        "itemGroups.forEach(g => { scene.remove(g); g.traverse(c => { if(c.geometry) c.geometry.dispose(); if(c.material) { if(c.material.map) c.material.map.dispose(); c.material.dispose(); } }); });",
+        "shelfMeshes.forEach(m => { scene.remove(m); m.geometry.dispose(); m.material.dispose(); });",
+        "labelSprites.forEach(s => { scene.remove(s); if(s.material.map) s.material.map.dispose(); s.material.dispose(); });",
+        "itemGroups = []; shelfMeshes = []; labelSprites = [];"
+      ],
+      "verify": "After calling clearScene(), scene only has lights remaining."
+    },
+    {
+      "step": "9",
+      "action": "Add switchViewMode(newMode) function",
+      "file": "static/js/trophy-shelf.js",
+      "change": "Orchestrates the mode transition.",
+      "logic": [
+        "1. If newMode === currentViewMode, return",
+        "2. Set currentViewMode = newMode",
+        "3. Mark all items for exit: itemGroups.forEach(g => { g.userData.exiting = true; g.userData.exitStartTime = performance.now(); })",
+        "4. After exit animation completes (checked in animate loop):",
+        "   a. clearScene()",
+        "   b. const shelfMap = buildShelves(allItems, currentViewMode)",
+        "   c. placeItems(allItems, shelfMap, currentViewMode)",
+        "   d. Recalculate camera: totalRows = computeRowCount(allItems, currentViewMode), update baseCameraY, camera.position, lookAtTarget",
+        "   e. Update toggle button text",
+        "   f. Re-enable toggle button"
+      ],
+      "verify": "Clicking toggle switches layout smoothly."
+    },
+    {
+      "step": "10",
+      "action": "Add exit animation to updateEntranceAnimations()",
+      "file": "static/js/trophy-shelf.js",
+      "change": "Check for group.userData.exiting. If true, scale down from current to 0 over 300ms. When all exiting items reach scale 0, trigger the rebuild (call a callback or set a flag).",
+      "logic": [
+        "In updateEntranceAnimations(), add before the entrance logic:",
+        "let allExited = true;",
+        "itemGroups.forEach(g => {",
+        "  if (!g.userData.exiting) { allExited = false; return; }",
+        "  const elapsed = performance.now() - g.userData.exitStartTime;",
+        "  if (elapsed >= 300) { g.scale.set(0,0,0); }",
+        "  else { const t = 1 - elapsed/300; g.scale.set(t,t,t); allExited = false; }",
+        "});",
+        "if (allExited && itemGroups.length > 0 && itemGroups[0].userData.exiting) { rebuildAfterExit(); }"
+      ],
+      "verify": "Items scale down before mode switch rebuild."
+    },
+    {
+      "step": "11",
+      "action": "Wire toggle button click handler in initScene()",
+      "file": "static/js/trophy-shelf.js",
+      "change": "In initScene(), after event listeners: document.getElementById('shelf-view-toggle').addEventListener('click', onToggleClick). Function onToggleClick: disable button, call switchViewMode(currentViewMode === 'all' ? 'grouped' : 'all').",
+      "verify": "Button click triggers mode switch."
+    },
+    {
+      "step": "12",
+      "action": "Store allItems in initScene()",
+      "file": "static/js/trophy-shelf.js",
+      "change": "At the start of initScene(), set allItems = items. Pass mode='all' to buildShelves() and placeItems() for default view.",
+      "verify": "Default view is 'all' mode — items mixed on shared shelves."
+    },
+    {
+      "step": "13",
+      "action": "Smooth camera transition on mode switch",
+      "file": "static/js/trophy-shelf.js",
+      "change": "Instead of snapping camera to new position, lerp it in animate(). Add targetCameraY, targetCameraZ, targetLookAtY variables. In animate(): camera.position.y += (targetCameraY - camera.position.y) * 0.05; same for Z. lookAtTarget.y lerps similarly.",
+      "verify": "Camera smoothly moves to new position when switching modes."
+    },
+    {
+      "step": "14",
+      "action": "Update onResize() to use computeRowCount()",
+      "file": "static/js/trophy-shelf.js",
+      "change": "Resize should recalculate canvas height based on current mode's row count.",
+      "verify": "Resize works correctly in both modes."
+    }
+  ],
+
+  "file_manifest": {
+    "modify": [
+      "layouts/works/list.html",
+      "static/css/trophy-shelf.css",
+      "static/js/trophy-shelf.js"
+    ]
+  },
+
+  "testing_checklist": [
+    "Default view: all items on shared shelves, no category labels",
+    "Toggle button visible and styled as minimal pill",
+    "Click 'Group by type': items scale out, shelves rebuild grouped with labels, items scale in",
+    "Click 'Show all': reverse transition back to mixed view",
+    "No shelf viewed from extreme angle in either mode",
+    "With 1 shelf (all mode, ≤5 items): nearly level viewing angle",
+    "With 4 shelves (grouped mode): gentle angle variation, no steep perspectives",
+    "Camera smoothly transitions between positions on mode switch",
+    "Toggle button disabled during transition (no double-click)",
+    "All existing features still work: hover, tooltip, click, entrance animation, dark mode, parallax, mobile fallback",
+    "Mobile fallback grid unchanged (no toggle needed — already shows grouped)"
+  ]
+}

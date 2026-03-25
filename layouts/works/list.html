@@ -1,0 +1,67 @@
+{{ define "main" }}
+
+<section class="works-header">
+  <h1>{{ .Title }}</h1>
+  <p>{{ .Params.description }}</p>
+  <button id="shelf-view-toggle" class="shelf-toggle-btn">Group by type</button>
+</section>
+
+<div id="trophy-shelf-container">
+  <div id="trophy-tooltip">
+    <strong class="tooltip-title"></strong>
+    <span class="tooltip-category"></span>
+    <p class="tooltip-desc"></p>
+    <div class="tooltip-tags"></div>
+  </div>
+</div>
+
+<div class="trophy-fallback">
+  {{ $categories := slice "reward" "paper" "mobility" "project" }}
+  {{ $labels := dict "reward" "Rewards" "paper" "Papers" "mobility" "Mobilities" "project" "Projects" }}
+  {{ range $cat := $categories }}
+    {{ $items := where $.Pages "Params.item_type" $cat }}
+    {{ if $items }}
+      <div class="fallback-category">
+        <h3 class="fallback-category-title">{{ index $labels $cat }}</h3>
+        <div class="fallback-grid">
+          {{ range $items.ByDate.Reverse }}
+            <a class="fallback-card" {{ with .Params.link }}href="{{ . }}" target="_blank"{{ end }}>
+              <div class="fallback-icon">{{ partial "shelf-icon" $cat }}</div>
+              <strong class="fallback-title">{{ .Title }}</strong>
+              <p class="fallback-desc">{{ .Description }}</p>
+              <div class="fallback-tags">
+                {{ range .Params.tags }}<span>{{ . }}</span>{{ end }}
+              </div>
+            </a>
+          {{ end }}
+        </div>
+      </div>
+    {{ end }}
+  {{ end }}
+</div>
+
+<script>
+  window.__shelfItems = [
+    {{ range .Pages }}
+    {
+      title: {{ .Title | jsonify | safeJS }},
+      description: {{ .Description | jsonify | safeJS }},
+      url: {{ .Params.link | default "" | jsonify | safeJS }},
+      image: {{ .Params.image | default "" | jsonify | safeJS }},
+      tags: {{ .Params.tags | default slice | jsonify | safeJS }},
+      itemType: {{ .Params.item_type | jsonify | safeJS }},
+      accentColor: {{ .Params.accent_color | default "" | jsonify | safeJS }},
+      date: {{ .Date.Format "2006-01-02" | jsonify | safeJS }}
+    },
+    {{ end }}
+  ];
+</script>
+
+<script type="importmap">
+  { "imports": { "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js" } }
+</script>
+<script type="module" src="/js/trophy-shelf.js"></script>
+
+<link rel="stylesheet" href="/css/trophy-shelf.css">
+
+{{ end }}

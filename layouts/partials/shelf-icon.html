@@ -1,0 +1,9 @@
+{{ if eq . "project" }}
+<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 21h8m-4-4v4M5 3h14v2a7 7 0 01-14 0V3zm-2 0h2m16 0h2M3 3v3a2 2 0 002 2m14-5v3a2 2 0 01-2 2"/></svg>
+{{ else if eq . "mobility" }}
+<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20"/></svg>
+{{ else if eq . "paper" }}
+<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M8 3H5a2 2 0 00-2 2v14c0 1.1.9 2 2 2h3m0-18h11a2 2 0 012 2v10m-13-12v18m0 0h11a2 2 0 002-2v-2"/></svg>
+{{ else if eq . "reward" }}
+<svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z"/></svg>
+{{ end }}

@@ -60,7 +60,13 @@ summaryLength = 30
     weight = 1
 
   [[menu.main]]
+    identifier = "works"
+    name = "Works"
+    url = "/works/"
+    weight = 2
+
+  [[menu.main]]
     identifier = "me"
     name = "Me"
     url = "/me/"
-    weight = 2
+    weight = 3

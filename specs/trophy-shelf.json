@@ -1,0 +1,1758 @@
+{
+  "feature": "Achievement Shelf — 3D Multi-Category Showcase",
+  "version": "2.0",
+  "description": "A Three.js-powered 3D shelf wall that displays life achievements across multiple categories. Each category has its own shelf row and a unique 3D shape: trophy cups for projects, globes for mobilities, scrolls for scientific papers, and stars for awards. The visual style seamlessly blends with the Quint Hugo theme's clean, minimal aesthetic.",
+
+  "concept": {
+    "metaphor": "Life is a series of accomplishments. Each one earns an object that sits on your personal display shelf — a hall of everything you've achieved, organized by type.",
+    "visual_style": "Modern minimalist wall of floating shelves. No wood textures, no skeuomorphism. Clean geometry, soft lighting, subtle shadows. Each shelf row is labeled with its category name. Objects are visually distinct per category but share the same material language.",
+    "interaction": "Objects gently idle-rotate. On hover, the object lifts slightly and a tooltip appears with details. On click, navigates to a URL. Each shelf row has a small label on the left edge."
+  },
+
+  "categories": {
+    "description": "Each category maps to a unique 3D shape and a Hugo content type value. Items are grouped onto shelf rows by category.",
+    "types": [
+      {
+        "id": "project",
+        "label": "Projects",
+        "hugo_type_value": "project",
+        "shape": "trophy_cup",
+        "default_color": "#879094",
+        "icon_2d_fallback": "trophy icon (inline SVG)"
+      },
+      {
+        "id": "mobility",
+        "label": "Mobilities",
+        "hugo_type_value": "mobility",
+        "shape": "globe",
+        "default_color": "#5b8a72",
+        "icon_2d_fallback": "globe icon (inline SVG)"
+      },
+      {
+        "id": "paper",
+        "label": "Papers",
+        "hugo_type_value": "paper",
+        "shape": "scroll",
+        "default_color": "#8a7b5b",
+        "icon_2d_fallback": "scroll icon (inline SVG)"
+      },
+      {
+        "id": "reward",
+        "label": "Rewards",
+        "hugo_type_value": "reward",
+        "shape": "star",
+        "default_color": "#c4a44a",
+        "icon_2d_fallback": "star icon (inline SVG)"
+      }
+    ]
+  },
+
+  "tech_stack": {
+    "3d_engine": "Three.js (r160+, ES module via CDN importmap)",
+    "cdn_url": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+    "hugo_integration": "Single 'shelf' content section with a 'type' field in frontmatter to distinguish categories",
+    "fallback": "2D CSS grid grouped by category for mobile and no-WebGL browsers",
+    "no_build_tools": true,
+    "module_loading": "Use <script type='importmap'> to map 'three' to CDN, then import in trophy-shelf.js"
+  },
+
+  "theme_integration": {
+    "design_tokens": {
+      "light_mode": {
+        "background": "#fff",
+        "primary_text": "#353d49",
+        "secondary_text": "#252627",
+        "link_color": "#879094",
+        "shadow_color": "rgba(0, 0, 0, 0.15)",
+        "borders": "#555"
+      },
+      "dark_mode": {
+        "background": "#252627",
+        "primary_text": "#fff",
+        "secondary_text": "#fefefe",
+        "link_color": "#9fb1b6"
+      }
+    },
+    "font": "OpenSauceOne, sans-serif",
+    "respect_prefers_color_scheme": true,
+    "dark_mode_detection_in_js": "window.matchMedia('(prefers-color-scheme: dark)').matches — listen for changes with addEventListener('change', ...) to update scene materials and lighting in real-time."
+  },
+
+  "hugo_structure": {
+    "content": {
+      "directory": "content/works/",
+      "index_file": {
+        "path": "content/works/_index.md",
+        "content": "+++\ntitle = 'Works'\ndescription = 'Things I have achieved.'\n+++"
+      },
+      "item_frontmatter_schema": {
+        "title": {
+          "type": "string",
+          "required": true,
+          "description": "Item name displayed on tooltip"
+        },
+        "description": {
+          "type": "string",
+          "required": true,
+          "description": "Short description shown on hover tooltip"
+        },
+        "date": {
+          "type": "string",
+          "required": true,
+          "format": "YYYY-MM-DD",
+          "description": "Completion/achievement date. Used for ordering items left-to-right within their shelf row (oldest left, newest right)."
+        },
+        "item_type": {
+          "type": "string",
+          "required": true,
+          "enum": ["project", "mobility", "paper", "reward"],
+          "description": "Determines which shelf row and 3D shape to use."
+        },
+        "link": {
+          "type": "string",
+          "required": false,
+          "description": "External link. If empty, click does nothing. Tooltip still shows on hover. NOTE: 'url' is reserved by Hugo for page URL overrides, so we use 'link' instead."
+        },
+        "image": {
+          "type": "string",
+          "required": false,
+          "description": "Path to image (square, min 256x256). Mapped onto object plaque/face. Falls back to canvas-rendered first letter of title."
+        },
+        "tags": {
+          "type": "array",
+          "required": false,
+          "description": "Skill/tech tags shown on hover tooltip"
+        },
+        "accent_color": {
+          "type": "string",
+          "required": false,
+          "description": "Hex color override for this item's 3D material. Falls back to category default_color."
+        },
+        "weight": {
+          "type": "integer",
+          "required": false,
+          "description": "Override ordering within shelf row. Lower = further left. If omitted, ordered by date."
+        }
+      },
+      "example_files": [
+        {
+          "filename": "content/works/personal-blog.md",
+          "content": "+++\ntitle = 'burakgizlice.com'\ndescription = 'My personal blog built with Hugo and the Quint theme.'\ndate = '2025-01-15'\nitem_type = 'project'\nurl = 'https://github.com/burakgizlice/burakgizlice.com'\nimage = '/images/works/blog.png'\ntags = ['Hugo', 'HTML', 'CSS']\n+++"
+        },
+        {
+          "filename": "content/works/erasmus-internship.md",
+          "content": "+++\ntitle = 'Erasmus+ Internship'\ndescription = 'Software engineering internship abroad through the Erasmus+ programme.'\ndate = '2024-06-01'\nitem_type = 'mobility'\nurl = ''\ntags = ['Erasmus+', 'EU']\n+++"
+        },
+        {
+          "filename": "content/works/my-paper.md",
+          "content": "+++\ntitle = 'Research Paper Title'\ndescription = 'Published in Journal X. Covers topic Y.'\ndate = '2024-09-15'\nitem_type = 'paper'\nurl = 'https://doi.org/example'\ntags = ['Machine Learning', 'NLP']\n+++"
+        },
+        {
+          "filename": "content/works/hackathon-win.md",
+          "content": "+++\ntitle = 'Hackathon 1st Place'\ndescription = 'Won first place at XYZ Hackathon 2024.'\ndate = '2024-11-20'\nitem_type = 'reward'\nurl = ''\ntags = ['Hackathon']\naccent_color = '#d4a017'\n+++"
+        }
+      ]
+    },
+    "layouts": {
+      "list_template": "layouts/works/list.html"
+    },
+    "config_changes": {
+      "file": "hugo.toml",
+      "changes": [
+        {
+          "action": "add_menu_item",
+          "value": "[[menu.main]]\n  identifier = 'works'\n  name = 'Works'\n  url = '/works/'\n  weight = 2"
+        },
+        {
+          "action": "update_existing",
+          "target": "menu.main entry for 'me'",
+          "change": "weight = 2 → weight = 3"
+        }
+      ]
+    },
+    "static_assets": {
+      "images_dir": "static/images/works/",
+      "js_file": "static/js/trophy-shelf.js",
+      "css_file": "static/css/trophy-shelf.css"
+    }
+  },
+
+  "three_js_scene": {
+    "file": "static/js/trophy-shelf.js",
+    "module_type": "ES module",
+
+    "initialization": {
+      "function": "initScene(containerId, itemsData)",
+      "params": {
+        "containerId": "string — DOM id of the container div",
+        "itemsData": "array of objects — serialized from Hugo template, each with: { title, description, url, image, tags, itemType, accentColor, date }"
+      },
+      "steps": [
+        "1. Get container element by id",
+        "2. Create WebGLRenderer with { antialias: true, alpha: true, powerPreference: 'default' }",
+        "3. Set pixel ratio to Math.min(window.devicePixelRatio, 2)",
+        "4. Set renderer size to container dimensions",
+        "5. Enable shadow map (PCFSoftShadowMap)",
+        "6. Append renderer.domElement to container",
+        "7. Create Scene (no background — transparent)",
+        "8. Create PerspectiveCamera",
+        "9. Add lights",
+        "10. Group items by itemType",
+        "11. Create shelf rows",
+        "12. Create 3D objects on shelves",
+        "13. Start animation loop",
+        "14. Attach event listeners"
+      ]
+    },
+
+    "canvas": {
+      "container": "div#trophy-shelf-container",
+      "width": "100% of parent container",
+      "height": "computed dynamically based on number of shelf rows: (numRows * 3.5 + 2) mapped to vh, min 40vh, max 85vh",
+      "background": "transparent (alpha: true)",
+      "antialias": true,
+      "pixel_ratio": "Math.min(window.devicePixelRatio, 2)"
+    },
+
+    "camera": {
+      "type": "PerspectiveCamera",
+      "fov": 45,
+      "near": 0.1,
+      "far": 100,
+      "initial_position": "Computed dynamically: { x: 0, y: totalShelfHeight / 2, z: 8 + (numRows - 1) * 1.5 }",
+      "look_at": "{ x: 0, y: totalShelfHeight / 2, z: 0 }",
+      "note": "Camera pulls back as more shelf rows are added so everything fits in view."
+    },
+
+    "lighting": {
+      "ambient_light": {
+        "constructor": "new THREE.AmbientLight(color, intensity)",
+        "light_mode": { "color": "0xffffff", "intensity": 0.6 },
+        "dark_mode": { "color": "0x9fb1b6", "intensity": 0.4 }
+      },
+      "directional_light": {
+        "constructor": "new THREE.DirectionalLight(0xffffff, 0.8)",
+        "position": { "x": 5, "y": 10, "z": 7 },
+        "cast_shadow": true,
+        "shadow_mapSize": 1024
+      },
+      "hemisphere_light": {
+        "constructor": "new THREE.HemisphereLight(skyColor, groundColor, 0.3)",
+        "light_mode": { "sky": "0xffffff", "ground": "0x353d49" },
+        "dark_mode": { "sky": "0x9fb1b6", "ground": "0x252627" }
+      },
+      "dark_mode_switch_function": "updateLighting(isDark) — iterates scene lights and updates colors/intensities. Called on init and on matchMedia change event."
+    },
+
+    "shelf_rows": {
+      "description": "One shelf row per category that has at least 1 item. Empty categories get no shelf. Rows are ordered top-to-bottom: rewards, papers, mobilities, projects (configurable via category_display_order array).",
+      "category_display_order": ["reward", "paper", "mobility", "project"],
+      "shelf_geometry": {
+        "constructor": "new THREE.BoxGeometry(10, 0.08, 1.5)",
+        "material_light": { "color": "0xe8e8e8", "roughness": 0.9, "metalness": 0.0 },
+        "material_dark": { "color": "0x3a3b3d", "roughness": 0.9, "metalness": 0.0 },
+        "receive_shadow": true
+      },
+      "vertical_spacing": 3.0,
+      "first_shelf_y": 0,
+      "positioning": "shelf_y = first_shelf_y + (rowIndex * vertical_spacing)",
+      "label": {
+        "description": "Category name rendered as a 3D text sprite floating at the left edge of each shelf.",
+        "implementation": "Create a CanvasTexture: draw category label text on a 2D canvas, then apply as SpriteMaterial map.",
+        "font": "OpenSauceOne or sans-serif fallback",
+        "font_size": "48px on a 512x128 canvas",
+        "text_color_light": "#353d49",
+        "text_color_dark": "#fefefe",
+        "position": "{ x: -5.3, y: shelf_y + 0.6, z: 0 }",
+        "scale": "{ x: 1.5, y: 0.4, z: 1 }"
+      },
+      "max_items_per_row": 5,
+      "overflow": "If a category has > 5 items, create an additional shelf row for that same category directly below (shift subsequent category shelves down). Label only appears on the first row of each category."
+    },
+
+    "shape_definitions": {
+      "note": "Each shape is built entirely from Three.js built-in geometries. No external models or GLTF files. Each shape is constructed as a THREE.Group and returned by a factory function.",
+
+      "trophy_cup": {
+        "category": "project",
+        "factory_function": "createTrophyCup(accentColor)",
+        "total_height_units": 1.1,
+        "parts": [
+          {
+            "name": "cup_body",
+            "geometry_type": "LatheGeometry",
+            "constructor": "new THREE.LatheGeometry(points, 32)",
+            "profile_points_as_Vector2": [
+              { "x": 0.0, "y": 0.0, "comment": "center bottom" },
+              { "x": 0.15, "y": 0.0, "comment": "base edge" },
+              { "x": 0.12, "y": 0.1, "comment": "stem bottom" },
+              { "x": 0.08, "y": 0.3, "comment": "stem narrow point" },
+              { "x": 0.08, "y": 0.5, "comment": "stem top" },
+              { "x": 0.2, "y": 0.6, "comment": "cup flare begins" },
+              { "x": 0.35, "y": 0.9, "comment": "cup widest" },
+              { "x": 0.38, "y": 1.0, "comment": "outer rim" },
+              { "x": 0.35, "y": 1.0, "comment": "inner rim — gives rim thickness" }
+            ],
+            "material": {
+              "type": "MeshStandardMaterial",
+              "color": "accentColor parameter",
+              "roughness": 0.3,
+              "metalness": 0.6
+            },
+            "position": { "x": 0, "y": 0, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "base_plate",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.25, 0.25, 0.06, 32)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.8, "metalness": 0.1 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.8, "metalness": 0.1 }
+            },
+            "position": { "x": 0, "y": -0.03, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "plaque",
+            "geometry_type": "PlaneGeometry",
+            "constructor": "new THREE.PlaneGeometry(0.2, 0.2)",
+            "material": {
+              "type": "MeshBasicMaterial",
+              "map": "TextureLoader(image) or fallback CanvasTexture with first letter",
+              "transparent": true
+            },
+            "position": { "x": 0, "y": 0.15, "z": 0.26 }
+          }
+        ]
+      },
+
+      "globe": {
+        "category": "mobility",
+        "factory_function": "createGlobe(accentColor)",
+        "total_height_units": 1.1,
+        "parts": [
+          {
+            "name": "sphere",
+            "geometry_type": "SphereGeometry",
+            "constructor": "new THREE.SphereGeometry(0.35, 32, 32)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "color": "accentColor parameter",
+              "roughness": 0.4,
+              "metalness": 0.3,
+              "wireframe": false
+            },
+            "position": { "x": 0, "y": 0.7, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "latitude_rings",
+            "description": "3 thin torus rings around the sphere at different tilts to suggest latitude/longitude lines. Gives it the globe feel without a texture.",
+            "count": 3,
+            "geometry_type": "TorusGeometry",
+            "constructor": "new THREE.TorusGeometry(0.36, 0.008, 8, 64)",
+            "material": {
+              "type": "MeshBasicMaterial",
+              "light_mode": { "color": "0x353d49" },
+              "dark_mode": { "color": "0xfefefe" },
+              "opacity": 0.4,
+              "transparent": true
+            },
+            "ring_rotations": [
+              { "x_deg": 0, "y_deg": 0, "z_deg": 0, "comment": "equator — horizontal" },
+              { "x_deg": 90, "y_deg": 0, "z_deg": 0, "comment": "meridian — vertical" },
+              { "x_deg": 0, "y_deg": 0, "z_deg": 23.5, "comment": "tilted ring — axial tilt nod" }
+            ],
+            "position": "Same as sphere center: { x: 0, y: 0.7, z: 0 }"
+          },
+          {
+            "name": "stand_pole",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.02, 0.02, 0.35, 8)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.5, "metalness": 0.3 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.5, "metalness": 0.3 }
+            },
+            "position": { "x": 0, "y": 0.175, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "stand_base",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.2, 0.25, 0.06, 32)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.8, "metalness": 0.1 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.8, "metalness": 0.1 }
+            },
+            "position": { "x": 0, "y": -0.03, "z": 0 },
+            "cast_shadow": true
+          }
+        ]
+      },
+
+      "scroll": {
+        "category": "paper",
+        "factory_function": "createScroll(accentColor)",
+        "total_height_units": 1.0,
+        "parts": [
+          {
+            "name": "scroll_body",
+            "description": "A rolled-up scroll/diploma shape. Cylinder with slight taper.",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.12, 0.12, 0.7, 32)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "color": "accentColor parameter",
+              "roughness": 0.7,
+              "metalness": 0.05
+            },
+            "rotation": { "x_deg": 0, "y_deg": 0, "z_deg": 90, "comment": "lay horizontally" },
+            "position": { "x": 0, "y": 0.55, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "scroll_end_left",
+            "description": "Decorative cap on left end of scroll — slightly larger cylinder disk.",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.15, 0.15, 0.04, 32)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.5, "metalness": 0.2 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.5, "metalness": 0.2 }
+            },
+            "rotation": { "x_deg": 0, "y_deg": 0, "z_deg": 90 },
+            "position": { "x": -0.37, "y": 0.55, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "scroll_end_right",
+            "description": "Decorative cap on right end. Same as left.",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.15, 0.15, 0.04, 32)",
+            "material": "Same as scroll_end_left",
+            "rotation": { "x_deg": 0, "y_deg": 0, "z_deg": 90 },
+            "position": { "x": 0.37, "y": 0.55, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "ribbon",
+            "description": "A thin torus wrapped around the scroll center to suggest a tied ribbon.",
+            "geometry_type": "TorusGeometry",
+            "constructor": "new THREE.TorusGeometry(0.13, 0.015, 8, 32)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "color": "darken(accentColor, 20%) or fallback 0x6b5d3f",
+              "roughness": 0.6,
+              "metalness": 0.1
+            },
+            "rotation": { "x_deg": 90, "y_deg": 0, "z_deg": 0 },
+            "position": { "x": 0, "y": 0.55, "z": 0 }
+          },
+          {
+            "name": "stand_cradle_left",
+            "description": "Small angled support that the scroll rests on (left side). A thin box rotated to form a V-cradle half.",
+            "geometry_type": "BoxGeometry",
+            "constructor": "new THREE.BoxGeometry(0.03, 0.4, 0.03)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.8, "metalness": 0.1 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.8, "metalness": 0.1 }
+            },
+            "rotation": { "x_deg": 0, "y_deg": 0, "z_deg": 15 },
+            "position": { "x": -0.12, "y": 0.2, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "stand_cradle_right",
+            "description": "Right side of the V-cradle. Mirror of left.",
+            "geometry_type": "BoxGeometry",
+            "constructor": "new THREE.BoxGeometry(0.03, 0.4, 0.03)",
+            "material": "Same as stand_cradle_left",
+            "rotation": { "x_deg": 0, "y_deg": 0, "z_deg": -15 },
+            "position": { "x": 0.12, "y": 0.2, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "stand_base",
+            "geometry_type": "BoxGeometry",
+            "constructor": "new THREE.BoxGeometry(0.5, 0.06, 0.3)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.8, "metalness": 0.1 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.8, "metalness": 0.1 }
+            },
+            "position": { "x": 0, "y": -0.03, "z": 0 },
+            "cast_shadow": true
+          }
+        ]
+      },
+
+      "star": {
+        "category": "reward",
+        "factory_function": "createStar(accentColor)",
+        "total_height_units": 1.2,
+        "parts": [
+          {
+            "name": "star_shape",
+            "description": "A 5-pointed star extruded into 3D. Built using THREE.Shape with 5 outer points and 5 inner points, then ExtrudeGeometry.",
+            "geometry_type": "ExtrudeGeometry",
+            "construction_steps": [
+              "1. Create a THREE.Shape()",
+              "2. Compute 10 points (alternating outer radius 0.3, inner radius 0.12) around a circle",
+              "3. shape.moveTo(points[0].x, points[0].y)",
+              "4. shape.lineTo through all 10 points",
+              "5. shape.closePath()",
+              "6. new THREE.ExtrudeGeometry(shape, { depth: 0.08, bevelEnabled: true, bevelThickness: 0.02, bevelSize: 0.02, bevelSegments: 3 })"
+            ],
+            "outer_radius": 0.3,
+            "inner_radius": 0.12,
+            "num_points": 5,
+            "extrude_depth": 0.08,
+            "material": {
+              "type": "MeshStandardMaterial",
+              "color": "accentColor parameter",
+              "roughness": 0.2,
+              "metalness": 0.7,
+              "note": "More metallic/shiny than other shapes — it's an award."
+            },
+            "rotation": { "x_deg": 0, "y_deg": 0, "z_deg": 0, "comment": "star faces camera, flat side forward" },
+            "position": { "x": 0, "y": 0.85, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "stand_pole",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.025, 0.025, 0.55, 8)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.5, "metalness": 0.3 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.5, "metalness": 0.3 }
+            },
+            "position": { "x": 0, "y": 0.275, "z": 0 },
+            "cast_shadow": true
+          },
+          {
+            "name": "stand_base",
+            "geometry_type": "CylinderGeometry",
+            "constructor": "new THREE.CylinderGeometry(0.2, 0.25, 0.06, 32)",
+            "material": {
+              "type": "MeshStandardMaterial",
+              "light_mode": { "color": "0x353d49", "roughness": 0.8, "metalness": 0.1 },
+              "dark_mode": { "color": "0xfefefe", "roughness": 0.8, "metalness": 0.1 }
+            },
+            "position": { "x": 0, "y": -0.03, "z": 0 },
+            "cast_shadow": true
+          }
+        ]
+      }
+    },
+
+    "item_placement": {
+      "function": "placeItemsOnShelves(scene, itemsByCategory, shelfRows)",
+      "logic": [
+        "1. For each shelf row, get the items assigned to it",
+        "2. Sort items by weight (if set) then by date ascending (oldest left)",
+        "3. Calculate spacing: shelfWidth / (numItems + 1)",
+        "4. For each item at index i:",
+        "   x = -shelfWidth/2 + spacing * (i + 1)",
+        "   y = shelfRow.y + 0.04 (sit on top of shelf surface)",
+        "   z = 0",
+        "5. Call the appropriate factory function based on item.itemType",
+        "6. Set group.position to (x, y, z)",
+        "7. Attach userData to group: { title, description, url, tags, itemType }",
+        "8. Set initial scale to (0, 0, 0) for entrance animation",
+        "9. Add group to scene and to a global itemGroups array"
+      ],
+      "per_shelf_max": 5,
+      "shelf_width": 10,
+      "stagger_initial_rotation": "group.rotation.y = Math.random() * Math.PI * 2"
+    },
+
+    "animations": {
+      "function": "animate() — called via requestAnimationFrame loop",
+
+      "idle_rotation": {
+        "applies_to": "all item groups",
+        "code_logic": "group.rotation.y += 0.003 per frame",
+        "note": "Initial Y rotation is randomized at placement so items don't sync."
+      },
+
+      "hover_lift": {
+        "applies_to": "currently hovered item group",
+        "target_y_offset": 0.15,
+        "target_rotation_speed": 0.01,
+        "easing": "lerp with factor 0.1 — group.position.y += (targetY - group.position.y) * 0.1",
+        "unhover": "lerp back to original Y position at same rate"
+      },
+
+      "entrance_animation": {
+        "trigger": "on page load, after scene is initialized",
+        "per_item": {
+          "start_scale": { "x": 0, "y": 0, "z": 0 },
+          "end_scale": { "x": 1, "y": 1, "z": 1 },
+          "overshoot": "scale peaks at 1.1 then settles to 1.0 (ease-out-back curve)",
+          "duration_ms": 600
+        },
+        "stagger": {
+          "delay_between_items_ms": 120,
+          "order": "left-to-right within each shelf, top shelf first"
+        },
+        "implementation": "Use a startTime per item. In animate(), calculate elapsed = now - item.startTime. If elapsed < duration, compute scale using easeOutBack(elapsed/duration). Else set scale to 1."
+      },
+
+      "easeOutBack_function": {
+        "description": "Utility easing function",
+        "formula": "function easeOutBack(t) { const c1 = 1.70158; const c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2); }"
+      }
+    },
+
+    "interaction": {
+      "raycaster_setup": {
+        "objects": "new THREE.Raycaster()",
+        "mouse": "new THREE.Vector2()",
+        "event_listeners": [
+          {
+            "event": "mousemove",
+            "target": "renderer.domElement",
+            "handler": "onMouseMove(event)",
+            "logic": [
+              "1. Calculate mouse.x and mouse.y in normalized device coordinates (-1 to +1)",
+              "2. raycaster.setFromCamera(mouse, camera)",
+              "3. const intersects = raycaster.intersectObjects(scene.children, true)",
+              "4. Find the first intersected object whose ancestor group is in itemGroups[]",
+              "5. If found and different from current hover target: set as new hover target, show tooltip",
+              "6. If none found: clear hover target, hide tooltip",
+              "7. Set cursor: pointer if hovering an item, default otherwise"
+            ]
+          },
+          {
+            "event": "click",
+            "target": "renderer.domElement",
+            "handler": "onClick(event)",
+            "logic": [
+              "1. If there is a current hover target and it has a url in userData:",
+              "   window.open(userData.url, '_blank')",
+              "2. If no url, do nothing (tooltip is still visible from hover)"
+            ]
+          },
+          {
+            "event": "touchstart",
+            "target": "renderer.domElement",
+            "handler": "onTouch(event)",
+            "logic": [
+              "1. Prevent default to avoid scroll conflicts",
+              "2. Compute touch position same as mousemove",
+              "3. Raycast to find item",
+              "4. If same item as last touch: open URL (second tap)",
+              "5. If different item or no previous: set as hover target, show tooltip (first tap)",
+              "6. If no item hit: clear hover and tooltip"
+            ]
+          }
+        ]
+      },
+
+      "find_parent_item_group": {
+        "description": "Utility to walk up the object tree from an intersected mesh to find its parent group that exists in itemGroups[].",
+        "logic": "let obj = intersected; while (obj) { if (itemGroups.includes(obj)) return obj; obj = obj.parent; } return null;"
+      },
+
+      "tooltip": {
+        "html_element": "div#trophy-tooltip",
+        "show_function": "showTooltip(itemGroup)",
+        "hide_function": "hideTooltip()",
+        "positioning_logic": [
+          "1. Get the item group's world position: group.getWorldPosition(tempVec3)",
+          "2. Offset Y up by shape height: tempVec3.y += shapeHeight + 0.3",
+          "3. Project to screen: tempVec3.project(camera)",
+          "4. Convert to CSS pixels: x = (tempVec3.x * 0.5 + 0.5) * renderer.domElement.clientWidth",
+          "5. y = (-tempVec3.y * 0.5 + 0.5) * renderer.domElement.clientHeight",
+          "6. Set tooltip style: left = x + 'px', top = y + 'px', transform: translate(-50%, -100%)",
+          "7. Populate innerHTML with title, description, tags, category badge"
+        ],
+        "content_template": "<strong class='tooltip-title'>{title}</strong><span class='tooltip-category'>{itemType}</span><p class='tooltip-desc'>{description}</p><div class='tooltip-tags'>{tags as spans}</div>",
+        "visibility": "opacity 0 → 1 transition, toggled via .visible class"
+      },
+
+      "mouse_parallax": {
+        "description": "Subtle camera offset based on mouse position for depth effect.",
+        "logic": [
+          "1. Track normalized mouse position: mouseNorm.x = (event.clientX / window.innerWidth) * 2 - 1",
+          "2. mouseNorm.y = -(event.clientY / window.innerHeight) * 2 + 1",
+          "3. In animate(): camera.position.x += (mouseNorm.x * 0.3 - camera.position.x) * 0.05",
+          "4. camera.position.y += (baseY + mouseNorm.y * 0.15 - camera.position.y) * 0.05",
+          "5. camera.lookAt(lookAtTarget)"
+        ],
+        "max_offset_x": 0.3,
+        "max_offset_y": 0.15,
+        "smoothing_factor": 0.05
+      }
+    },
+
+    "dark_mode_runtime_switch": {
+      "function": "setupDarkModeListener()",
+      "logic": [
+        "1. const mq = window.matchMedia('(prefers-color-scheme: dark)')",
+        "2. function applyTheme(isDark) { updateLighting(isDark); updateMaterials(isDark); updateShelfLabels(isDark); }",
+        "3. mq.addEventListener('change', (e) => applyTheme(e.matches))",
+        "4. applyTheme(mq.matches) on init"
+      ],
+      "updateMaterials": {
+        "description": "Iterate all item groups and shelf meshes, swap material colors between light/dark variants.",
+        "affected_parts": ["base_plate", "stand_pole", "stand_base", "stand_cradle", "shelf_geometry", "latitude_rings", "scroll_end caps", "shelf_labels"],
+        "note": "Accent colors (cup body, sphere, scroll body, star) do NOT change — only structural/neutral parts swap."
+      }
+    },
+
+    "responsiveness": {
+      "resize_handler": {
+        "event": "window 'resize' (debounced 100ms via setTimeout)",
+        "logic": [
+          "1. const width = container.clientWidth",
+          "2. const height = container.clientHeight",
+          "3. camera.aspect = width / height",
+          "4. camera.updateProjectionMatrix()",
+          "5. renderer.setSize(width, height)"
+        ]
+      },
+      "breakpoints": {
+        "desktop": { "min_width": 900, "max_items_per_row": 5 },
+        "tablet": { "min_width": 601, "max_width": 899, "max_items_per_row": 3, "note": "recalculate placement spacing" },
+        "mobile": { "max_width": 600, "action": "Do not initialize Three.js. Show fallback grid only." }
+      }
+    },
+
+    "cleanup": {
+      "function": "disposeScene()",
+      "trigger": "window 'beforeunload' event",
+      "steps": [
+        "1. Cancel animation frame",
+        "2. Traverse scene: dispose all geometry, material, texture",
+        "3. renderer.dispose()",
+        "4. Remove renderer.domElement from container",
+        "5. Remove all event listeners"
+      ]
+    },
+
+    "visibility_optimization": {
+      "logic": [
+        "1. Listen to document 'visibilitychange'",
+        "2. If document.hidden: cancel animation frame (pause rendering)",
+        "3. If visible: restart animation loop"
+      ]
+    }
+  },
+
+  "fallback_2d": {
+    "description": "A clean CSS grid layout grouped by category. Shown on mobile (<600px) or when WebGL is unavailable.",
+    "detection": {
+      "webgl_check": "try { const c = document.createElement('canvas'); return !!c.getContext('webgl2') || !!c.getContext('webgl'); } catch(e) { return false; }",
+      "viewport_check": "window.innerWidth < 600"
+    },
+    "toggle_logic": "If 3D not supported: add class 'no-webgl' to container. CSS: .no-webgl #trophy-shelf-canvas { display: none } .no-webgl .trophy-fallback { display: block }",
+
+    "html_structure": [
+      "{{ $grouped := dict }}",
+      "{{ range .Pages }}",
+      "  Group pages by .Params.item_type into the dict",
+      "{{ end }}",
+      "For each category in display order (reward, paper, mobility, project):",
+      "  <div class='fallback-category'>",
+      "    <h3 class='fallback-category-title'>{Category Label}</h3>",
+      "    <div class='fallback-grid'>",
+      "      {{ range items }}",
+      "        <a class='fallback-card' href='{url}' target='_blank'>",
+      "          <div class='fallback-icon'>{inline SVG for category}</div>",
+      "          <strong class='fallback-title'>{title}</strong>",
+      "          <p class='fallback-desc'>{description}</p>",
+      "          <div class='fallback-tags'>{{ range tags }}<span>{tag}</span>{{ end }}</div>",
+      "        </a>",
+      "      {{ end }}",
+      "    </div>",
+      "  </div>"
+    ],
+
+    "card_styles": {
+      "display": "flex, flex-direction: column, align-items: center, text-align: center",
+      "padding": "1rem",
+      "border": "1px solid var(--borders)",
+      "border_radius": "6px",
+      "background": "var(--primary-bg)",
+      "transition": "transform 0.2s, box-shadow 0.2s",
+      "hover": "translateY(-2px), box-shadow: 0 4px 12px var(--shadow-color)"
+    },
+
+    "grid_layout": {
+      "display": "grid",
+      "grid_template_columns": "repeat(auto-fill, minmax(180px, 1fr))",
+      "gap": "1.2rem"
+    },
+
+    "inline_svgs": {
+      "note": "Simple 24x24 SVG icons defined inline in the Hugo template. No external icon library.",
+      "trophy": "<svg viewBox='0 0 24 24' width='32' height='32' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M8 21h8m-4-4v4M5 3h14v2a7 7 0 01-14 0V3zm-2 0h2m16 0h2M3 3v3a2 2 0 002 2m14-5v3a2 2 0 01-2 2'/></svg>",
+      "globe": "<svg viewBox='0 0 24 24' width='32' height='32' fill='none' stroke='currentColor' stroke-width='1.5'><circle cx='12' cy='12' r='10'/><path d='M2 12h20M12 2a15 15 0 010 20M12 2a15 15 0 000 20'/></svg>",
+      "scroll": "<svg viewBox='0 0 24 24' width='32' height='32' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M8 3H5a2 2 0 00-2 2v14c0 1.1.9 2 2 2h3m0-18h11a2 2 0 012 2v10m-13-12v18m0 0h11a2 2 0 002-2M8 21h11a2 2 0 002-2v-2'/></svg>",
+      "star": "<svg viewBox='0 0 24 24' width='32' height='32' fill='none' stroke='currentColor' stroke-width='1.5'><path d='M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 22 12 18.56 5.82 22 7 14.14l-5-4.87 6.91-1.01L12 2z'/></svg>"
+    }
+  },
+
+  "css_file": {
+    "file": "static/css/trophy-shelf.css",
+    "sections": {
+      "container": {
+        "selector": "#trophy-shelf-container",
+        "properties": {
+          "position": "relative",
+          "width": "100%",
+          "max-width": "1200px",
+          "margin": "0 auto",
+          "overflow": "hidden"
+        }
+      },
+      "canvas": {
+        "selector": "#trophy-shelf-container canvas",
+        "properties": {
+          "display": "block",
+          "width": "100%",
+          "height": "auto"
+        }
+      },
+      "tooltip": {
+        "selector": "#trophy-tooltip",
+        "properties": {
+          "position": "absolute",
+          "top": "0",
+          "left": "0",
+          "pointer-events": "none",
+          "background": "var(--primary-bg)",
+          "color": "var(--primary-text)",
+          "border": "1px solid var(--borders)",
+          "border-radius": "6px",
+          "padding": "12px 16px",
+          "font-family": "OpenSauceOne, sans-serif",
+          "font-size": "0.85rem",
+          "max-width": "240px",
+          "box-shadow": "0 2px 12px var(--shadow-color)",
+          "opacity": "0",
+          "transition": "opacity 0.2s ease",
+          "z-index": "10",
+          "transform": "translate(-50%, -100%)"
+        }
+      },
+      "tooltip_visible": {
+        "selector": "#trophy-tooltip.visible",
+        "properties": { "opacity": "1" }
+      },
+      "tooltip_title": {
+        "selector": ".tooltip-title",
+        "properties": { "display": "block", "font-weight": "bold", "margin-bottom": "4px" }
+      },
+      "tooltip_category": {
+        "selector": ".tooltip-category",
+        "properties": {
+          "display": "inline-block",
+          "font-size": "0.7rem",
+          "text-transform": "uppercase",
+          "letter-spacing": "0.05em",
+          "color": "var(--link-color)",
+          "margin-bottom": "6px"
+        }
+      },
+      "tooltip_desc": {
+        "selector": ".tooltip-desc",
+        "properties": { "margin": "0 0 8px 0", "font-size": "0.8rem", "line-height": "1.4" }
+      },
+      "tooltip_tags": {
+        "selector": ".tooltip-tags",
+        "properties": { "display": "flex", "flex-wrap": "wrap", "gap": "4px" }
+      },
+      "tooltip_tag": {
+        "selector": ".tooltip-tags span",
+        "properties": {
+          "font-size": "0.7rem",
+          "padding": "2px 8px",
+          "border": "1px solid var(--link-color)",
+          "border-radius": "12px",
+          "color": "var(--link-color)"
+        }
+      },
+      "page_header": {
+        "selector": ".works-header",
+        "properties": {
+          "text-align": "center",
+          "padding": "2rem 1rem 1rem",
+          "font-family": "OpenSauceOne, sans-serif"
+        }
+      },
+      "page_header_title": {
+        "selector": ".works-header h1",
+        "properties": {
+          "font-size": "2rem",
+          "color": "var(--secondary-text)",
+          "margin": "0 0 0.5rem"
+        }
+      },
+      "page_header_desc": {
+        "selector": ".works-header p",
+        "properties": {
+          "color": "var(--link-color)",
+          "font-size": "1rem"
+        }
+      },
+      "fallback_hidden_by_default": {
+        "selector": ".trophy-fallback",
+        "properties": { "display": "none" }
+      },
+      "fallback_shown_when_no_webgl": {
+        "selector": ".no-webgl .trophy-fallback",
+        "properties": { "display": "block" }
+      },
+      "fallback_hide_canvas_when_no_webgl": {
+        "selector": ".no-webgl #trophy-shelf-container canvas",
+        "properties": { "display": "none" }
+      },
+      "fallback_category_title": {
+        "selector": ".fallback-category-title",
+        "properties": {
+          "font-size": "1.1rem",
+          "color": "var(--secondary-text)",
+          "margin": "2rem 0 1rem",
+          "padding-bottom": "0.5rem",
+          "border-bottom": "1px solid var(--borders)"
+        }
+      },
+      "fallback_grid": {
+        "selector": ".fallback-grid",
+        "properties": {
+          "display": "grid",
+          "grid-template-columns": "repeat(auto-fill, minmax(180px, 1fr))",
+          "gap": "1.2rem"
+        }
+      },
+      "fallback_card": {
+        "selector": ".fallback-card",
+        "properties": {
+          "display": "flex",
+          "flex-direction": "column",
+          "align-items": "center",
+          "text-align": "center",
+          "padding": "1.2rem 1rem",
+          "border": "1px solid var(--borders)",
+          "border-radius": "6px",
+          "background": "var(--primary-bg)",
+          "color": "var(--primary-text)",
+          "text-decoration": "none",
+          "transition": "transform 0.2s ease, box-shadow 0.2s ease"
+        }
+      },
+      "fallback_card_hover": {
+        "selector": ".fallback-card:hover",
+        "properties": {
+          "transform": "translateY(-2px)",
+          "box-shadow": "0 4px 12px var(--shadow-color)"
+        }
+      },
+      "fallback_icon": {
+        "selector": ".fallback-icon",
+        "properties": {
+          "color": "var(--link-color)",
+          "margin-bottom": "0.5rem"
+        }
+      },
+      "fallback_card_title": {
+        "selector": ".fallback-title",
+        "properties": {
+          "font-size": "0.95rem",
+          "color": "var(--secondary-text)",
+          "margin-bottom": "0.3rem"
+        }
+      },
+      "fallback_card_desc": {
+        "selector": ".fallback-desc",
+        "properties": {
+          "font-size": "0.8rem",
+          "color": "var(--primary-text)",
+          "margin": "0 0 0.5rem",
+          "line-height": "1.4"
+        }
+      },
+      "fallback_card_tags": {
+        "selector": ".fallback-tags span",
+        "properties": {
+          "font-size": "0.65rem",
+          "padding": "1px 6px",
+          "border": "1px solid var(--link-color)",
+          "border-radius": "10px",
+          "color": "var(--link-color)",
+          "margin": "2px"
+        }
+      },
+      "responsive_mobile": {
+        "media": "@media (max-width: 600px)",
+        "rules": {
+          ".trophy-fallback": { "display": "block" },
+          "#trophy-shelf-container canvas": { "display": "none" }
+        }
+      }
+    }
+  },
+
+  "layout_template": {
+    "file": "layouts/works/list.html",
+    "full_structure": [
+      "{{ define \"main\" }}",
+      "",
+      "<!-- Page Header -->",
+      "<section class='works-header'>",
+      "  <h1>{{ .Title }}</h1>",
+      "  <p>{{ .Params.description }}</p>",
+      "</section>",
+      "",
+      "<!-- 3D Scene Container -->",
+      "<div id='trophy-shelf-container'>",
+      "  <div id='trophy-tooltip'>",
+      "    <strong class='tooltip-title'></strong>",
+      "    <span class='tooltip-category'></span>",
+      "    <p class='tooltip-desc'></p>",
+      "    <div class='tooltip-tags'></div>",
+      "  </div>",
+      "</div>",
+      "",
+      "<!-- 2D Fallback Grid -->",
+      "<div class='trophy-fallback'>",
+      "  {{ $categories := slice \"reward\" \"paper\" \"mobility\" \"project\" }}",
+      "  {{ $labels := dict \"reward\" \"Rewards\" \"paper\" \"Papers\" \"mobility\" \"Mobilities\" \"project\" \"Projects\" }}",
+      "  {{ range $cat := $categories }}",
+      "    {{ $items := where $.Pages \"Params.item_type\" $cat }}",
+      "    {{ if $items }}",
+      "      <div class='fallback-category'>",
+      "        <h3 class='fallback-category-title'>{{ index $labels $cat }}</h3>",
+      "        <div class='fallback-grid'>",
+      "          {{ range $items.ByDate.Reverse }}",
+      "            <a class='fallback-card' {{ with .Params.url }}href='{{ . }}' target='_blank'{{ end }}>",
+      "              <div class='fallback-icon'>{{ partial \"shelf-icon\" $cat }}</div>",
+      "              <strong class='fallback-title'>{{ .Title }}</strong>",
+      "              <p class='fallback-desc'>{{ .Description }}</p>",
+      "              <div class='fallback-tags'>{{ range .Params.tags }}<span>{{ . }}</span>{{ end }}</div>",
+      "            </a>",
+      "          {{ end }}",
+      "        </div>",
+      "      </div>",
+      "    {{ end }}",
+      "  {{ end }}",
+      "</div>",
+      "",
+      "<!-- Serialize data for Three.js -->",
+      "<script>",
+      "  window.__shelfItems = [",
+      "    {{ range .Pages }}",
+      "    {",
+      "      title: {{ .Title | jsonify }},",
+      "      description: {{ .Description | jsonify }},",
+      "      url: {{ .Params.url | default \"\" | jsonify }},",
+      "      image: {{ .Params.image | default \"\" | jsonify }},",
+      "      tags: {{ .Params.tags | default slice | jsonify }},",
+      "      itemType: {{ .Params.item_type | jsonify }},",
+      "      accentColor: {{ .Params.accent_color | default \"\" | jsonify }},",
+      "      date: {{ .Date.Format \"2006-01-02\" | jsonify }}",
+      "    },",
+      "    {{ end }}",
+      "  ];",
+      "</script>",
+      "",
+      "<!-- Three.js import map and module -->",
+      "<script type='importmap'>",
+      "  { \"imports\": { \"three\": \"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js\" } }",
+      "</script>",
+      "<script type='module' src='/js/trophy-shelf.js'></script>",
+      "",
+      "<!-- Styles -->",
+      "<link rel='stylesheet' href='/css/trophy-shelf.css'>",
+      "",
+      "{{ end }}"
+    ]
+  },
+
+  "shelf_icon_partial": {
+    "file": "layouts/partials/shelf-icon.html",
+    "description": "Returns an inline SVG icon based on the category string passed as context.",
+    "logic": "{{ if eq . \"project\" }}...trophy SVG...{{ else if eq . \"mobility\" }}...globe SVG...{{ else if eq . \"paper\" }}...scroll SVG...{{ else if eq . \"reward\" }}...star SVG...{{ end }}"
+  },
+
+  "js_file_structure": {
+    "file": "static/js/trophy-shelf.js",
+    "description": "Single ES module file. All code in one file for simplicity. Uses named functions for clarity.",
+    "top_level_structure": [
+      "import * as THREE from 'three';",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 1: Constants & State",
+      "// ──────────────────────────────────────────",
+      "const CATEGORY_ORDER = ['reward', 'paper', 'mobility', 'project'];",
+      "const CATEGORY_LABELS = { reward: 'Rewards', paper: 'Papers', mobility: 'Mobilities', project: 'Projects' };",
+      "const CATEGORY_DEFAULTS = { project: 0x879094, mobility: 0x5b8a72, paper: 0x8a7b5b, reward: 0xc4a44a };",
+      "const SHELF_WIDTH = 10;",
+      "const MAX_PER_ROW = 5;",
+      "const SHELF_SPACING_Y = 3.0;",
+      "const IDLE_ROTATION_SPEED = 0.003;",
+      "const HOVER_LIFT = 0.15;",
+      "const HOVER_ROTATION_SPEED = 0.01;",
+      "",
+      "let scene, camera, renderer, raycaster, mouse;",
+      "let itemGroups = [];",
+      "let shelfMeshes = [];",
+      "let labelSprites = [];",
+      "let hoveredItem = null;",
+      "let animationFrameId = null;",
+      "let isDarkMode = false;",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 2: Shape Factory Functions",
+      "// ──────────────────────────────────────────",
+      "function createTrophyCup(accentColor) { ... }",
+      "function createGlobe(accentColor) { ... }",
+      "function createScroll(accentColor) { ... }",
+      "function createStar(accentColor) { ... }",
+      "function createShape(itemType, accentColor) { switch on itemType, call factory }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 3: Shelf & Label Creation",
+      "// ──────────────────────────────────────────",
+      "function createShelfMesh(yPosition) { ... }",
+      "function createShelfLabel(text, yPosition) { ... }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 4: Scene Setup",
+      "// ──────────────────────────────────────────",
+      "function initScene(containerId, items) { ... }",
+      "function setupLighting() { ... }",
+      "function buildShelves(items) { ... }",
+      "function placeItems(items, shelfMap) { ... }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 5: Texture Helpers",
+      "// ──────────────────────────────────────────",
+      "function createLetterTexture(letter, bgColor) { ... }",
+      "function loadImageTexture(path) { ... }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 6: Animation",
+      "// ──────────────────────────────────────────",
+      "function animate() { ... }",
+      "function easeOutBack(t) { ... }",
+      "function updateEntranceAnimations() { ... }",
+      "function updateIdleRotations() { ... }",
+      "function updateHoverAnimation() { ... }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 7: Interaction",
+      "// ──────────────────────────────────────────",
+      "function onMouseMove(event) { ... }",
+      "function onClick(event) { ... }",
+      "function onTouch(event) { ... }",
+      "function findParentItemGroup(object) { ... }",
+      "function showTooltip(group) { ... }",
+      "function hideTooltip() { ... }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 8: Dark Mode",
+      "// ──────────────────────────────────────────",
+      "function setupDarkModeListener() { ... }",
+      "function applyTheme(dark) { ... }",
+      "function updateLighting(dark) { ... }",
+      "function updateMaterials(dark) { ... }",
+      "function updateShelfLabels(dark) { ... }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 9: Responsiveness & Cleanup",
+      "// ──────────────────────────────────────────",
+      "function onResize() { ... }",
+      "function onVisibilityChange() { ... }",
+      "function disposeScene() { ... }",
+      "",
+      "// ──────────────────────────────────────────",
+      "// SECTION 10: Entry Point",
+      "// ──────────────────────────────────────────",
+      "function main() {",
+      "  const items = window.__shelfItems || [];",
+      "  if (!items.length) return;",
+      "  if (window.innerWidth < 600 || !hasWebGL()) { showFallback(); return; }",
+      "  initScene('trophy-shelf-container', items);",
+      "}",
+      "function hasWebGL() { ... }",
+      "function showFallback() { document.querySelector('.trophy-fallback').style.display = 'block'; }",
+      "",
+      "main();"
+    ]
+  },
+
+  "implementation_steps": {
+    "description": "Extremely atomic steps. Each step is a single, self-contained action that can be implemented and verified independently.",
+
+    "phase_1_hugo_scaffolding": [
+      {
+        "step": "1.1",
+        "action": "Create content/works/_index.md",
+        "file": "content/works/_index.md",
+        "content": "+++\ntitle = 'Works'\ndescription = 'Things I have achieved.'\n+++",
+        "verify": "File exists with correct frontmatter"
+      },
+      {
+        "step": "1.2",
+        "action": "Create static/images/works/ directory",
+        "command": "mkdir -p static/images/works",
+        "verify": "Directory exists"
+      },
+      {
+        "step": "1.3",
+        "action": "Add 'Works' menu item to hugo.toml",
+        "file": "hugo.toml",
+        "change": "Add [[menu.main]] block with identifier='works', name='Works', url='/works/', weight=2",
+        "verify": "hugo.toml has new menu entry"
+      },
+      {
+        "step": "1.4",
+        "action": "Update 'Me' menu weight in hugo.toml from 2 to 3",
+        "file": "hugo.toml",
+        "change": "Change weight = 2 to weight = 3 for the 'me' menu entry",
+        "verify": "Me menu item has weight 3"
+      }
+    ],
+
+    "phase_2_sample_content": [
+      {
+        "step": "2.1",
+        "action": "Create sample project item: content/works/personal-blog.md",
+        "file": "content/works/personal-blog.md",
+        "content": "+++\ntitle = 'burakgizlice.com'\ndescription = 'Personal blog built with Hugo and the Quint theme.'\ndate = '2025-01-15'\nitem_type = 'project'\nurl = 'https://github.com/burakgizlice/burakgizlice.com'\ntags = ['Hugo', 'HTML', 'CSS']\n+++",
+        "verify": "File exists, frontmatter has item_type = 'project'"
+      },
+      {
+        "step": "2.2",
+        "action": "Create sample mobility item: content/works/erasmus-internship.md",
+        "file": "content/works/erasmus-internship.md",
+        "content": "+++\ntitle = 'Erasmus+ Internship'\ndescription = 'Software engineering internship abroad through Erasmus+ programme.'\ndate = '2024-06-01'\nitem_type = 'mobility'\ntags = ['Erasmus+', 'EU']\n+++",
+        "verify": "File exists, frontmatter has item_type = 'mobility'"
+      },
+      {
+        "step": "2.3",
+        "action": "Create sample paper item: content/works/research-paper.md",
+        "file": "content/works/research-paper.md",
+        "content": "+++\ntitle = 'Sample Research Paper'\ndescription = 'Published in a sample journal. Covers interesting topics.'\ndate = '2024-09-15'\nitem_type = 'paper'\nurl = 'https://doi.org/example'\ntags = ['Machine Learning', 'NLP']\n+++",
+        "verify": "File exists, frontmatter has item_type = 'paper'"
+      },
+      {
+        "step": "2.4",
+        "action": "Create sample reward item: content/works/hackathon-win.md",
+        "file": "content/works/hackathon-win.md",
+        "content": "+++\ntitle = 'Hackathon 1st Place'\ndescription = 'Won first place at a hackathon.'\ndate = '2024-11-20'\nitem_type = 'reward'\ntags = ['Hackathon']\naccent_color = '#d4a017'\n+++",
+        "verify": "File exists, frontmatter has item_type = 'reward'"
+      }
+    ],
+
+    "phase_3_layout_template": [
+      {
+        "step": "3.1",
+        "action": "Create layouts/works/ directory",
+        "command": "mkdir -p layouts/shelf",
+        "verify": "Directory exists"
+      },
+      {
+        "step": "3.2",
+        "action": "Create layouts/works/list.html with page header section only",
+        "file": "layouts/works/list.html",
+        "content": "The {{ define \"main\" }} block with just the <section class='works-header'> containing title and description. No 3D or fallback yet.",
+        "verify": "hugo server shows /works/ page with title and description"
+      },
+      {
+        "step": "3.3",
+        "action": "Add 3D container div to list.html",
+        "file": "layouts/works/list.html",
+        "change": "Add <div id='trophy-shelf-container'> and the tooltip div inside it, after the header section",
+        "verify": "Container div exists in page HTML"
+      },
+      {
+        "step": "3.4",
+        "action": "Add Hugo data serialization script to list.html",
+        "file": "layouts/works/list.html",
+        "change": "Add <script> block that iterates .Pages and outputs window.__shelfItems array",
+        "verify": "View page source shows __shelfItems array with sample data"
+      },
+      {
+        "step": "3.5",
+        "action": "Add Three.js importmap and module script tag to list.html",
+        "file": "layouts/works/list.html",
+        "change": "Add <script type='importmap'> for three.js CDN and <script type='module' src='/js/trophy-shelf.js'>",
+        "verify": "Script tags present in page source"
+      },
+      {
+        "step": "3.6",
+        "action": "Add CSS link tag to list.html",
+        "file": "layouts/works/list.html",
+        "change": "Add <link rel='stylesheet' href='/css/trophy-shelf.css'>",
+        "verify": "Link tag present in page source"
+      },
+      {
+        "step": "3.7",
+        "action": "Add 2D fallback grid HTML to list.html",
+        "file": "layouts/works/list.html",
+        "change": "Add <div class='trophy-fallback'> with Hugo range loops grouping by item_type",
+        "verify": "Fallback HTML renders in page source with grouped items"
+      }
+    ],
+
+    "phase_4_shelf_icon_partial": [
+      {
+        "step": "4.1",
+        "action": "Create layouts/partials/shelf-icon.html",
+        "file": "layouts/partials/shelf-icon.html",
+        "content": "Conditional SVG output based on context string (project/mobility/paper/reward). Use the inline SVGs from fallback_2d.inline_svgs.",
+        "verify": "Partial exists and can be called from list.html"
+      }
+    ],
+
+    "phase_5_css": [
+      {
+        "step": "5.1",
+        "action": "Create static/css/trophy-shelf.css with container styles",
+        "file": "static/css/trophy-shelf.css",
+        "content": "#trophy-shelf-container styles only (position, width, max-width, margin, overflow)",
+        "verify": "Container is centered and properly sized on page"
+      },
+      {
+        "step": "5.2",
+        "action": "Add tooltip CSS to trophy-shelf.css",
+        "change": "Add #trophy-tooltip, #trophy-tooltip.visible, .tooltip-title, .tooltip-category, .tooltip-desc, .tooltip-tags, .tooltip-tags span styles",
+        "verify": "Tooltip element exists in DOM with correct styles (even though hidden)"
+      },
+      {
+        "step": "5.3",
+        "action": "Add page header CSS to trophy-shelf.css",
+        "change": "Add .works-header, .works-header h1, .works-header p styles",
+        "verify": "Page header renders with correct font and spacing"
+      },
+      {
+        "step": "5.4",
+        "action": "Add fallback grid CSS to trophy-shelf.css",
+        "change": "Add .trophy-fallback, .fallback-category-title, .fallback-grid, .fallback-card, .fallback-card:hover, .fallback-icon, .fallback-title, .fallback-desc, .fallback-tags span styles",
+        "verify": "Temporarily show fallback (remove display:none) and verify grid looks correct"
+      },
+      {
+        "step": "5.5",
+        "action": "Add responsive media queries to trophy-shelf.css",
+        "change": "Add @media (max-width: 600px) rules to show fallback and hide canvas",
+        "verify": "Resize browser below 600px, fallback grid appears"
+      }
+    ],
+
+    "phase_6_threejs_foundation": [
+      {
+        "step": "6.1",
+        "action": "Create static/js/trophy-shelf.js with imports and constants",
+        "file": "static/js/trophy-shelf.js",
+        "content": "import * as THREE from 'three'; All constants (CATEGORY_ORDER, SHELF_WIDTH, etc.) and state variables (scene, camera, renderer, etc.) Only constants and variable declarations — no functions yet.",
+        "verify": "No console errors on page load. Module loads successfully."
+      },
+      {
+        "step": "6.2",
+        "action": "Add hasWebGL() and showFallback() functions",
+        "change": "Add WebGL detection function and fallback display function",
+        "verify": "hasWebGL() returns true in WebGL-capable browser"
+      },
+      {
+        "step": "6.3",
+        "action": "Add main() entry point function",
+        "change": "Add main() that reads window.__shelfItems, checks WebGL, and calls initScene(). Add main() call at bottom of file.",
+        "verify": "main() executes without error (initScene not yet defined — add empty stub)"
+      },
+      {
+        "step": "6.4",
+        "action": "Implement initScene() — renderer and scene creation",
+        "change": "Create WebGLRenderer, set pixel ratio, set size, enable shadows, append to container. Create Scene. Store references in module-level variables.",
+        "verify": "Canvas element appears in #trophy-shelf-container. No visual content yet (transparent)."
+      },
+      {
+        "step": "6.5",
+        "action": "Implement initScene() — camera creation",
+        "change": "Create PerspectiveCamera with computed position based on number of shelf rows. Set lookAt.",
+        "verify": "No error. Camera is created (nothing to see yet)."
+      },
+      {
+        "step": "6.6",
+        "action": "Implement setupLighting()",
+        "change": "Create AmbientLight, DirectionalLight, HemisphereLight. Add all to scene. Check isDarkMode for initial colors.",
+        "verify": "Lights added to scene (scene.children includes 3 lights)."
+      },
+      {
+        "step": "6.7",
+        "action": "Implement animate() loop — basic requestAnimationFrame",
+        "change": "Add animate() function that calls requestAnimationFrame(animate) and renderer.render(scene, camera). Call animate() at end of initScene().",
+        "verify": "No errors. Transparent canvas renders continuously. Performance is smooth (check devtools FPS)."
+      }
+    ],
+
+    "phase_7_shelf_geometry": [
+      {
+        "step": "7.1",
+        "action": "Implement createShelfMesh(yPosition)",
+        "change": "Create BoxGeometry(10, 0.08, 1.5), MeshStandardMaterial with light/dark colors, set position.y, enable receiveShadow. Return mesh.",
+        "verify": "Call createShelfMesh(0) and add to scene. A thin horizontal bar appears in the 3D view."
+      },
+      {
+        "step": "7.2",
+        "action": "Implement createShelfLabel(text, yPosition)",
+        "change": "Create a 2D canvas (512x128), draw text on it, create CanvasTexture, create SpriteMaterial, create Sprite, position at left edge of shelf.",
+        "verify": "Label text appears floating near the shelf's left side."
+      },
+      {
+        "step": "7.3",
+        "action": "Implement buildShelves(items)",
+        "change": "Group items by itemType. For each non-empty category (in CATEGORY_ORDER), create shelf mesh and label. Handle overflow (>5 items = extra row). Store shelf Y positions in a map for item placement. Return shelfMap.",
+        "verify": "Multiple shelves appear stacked vertically, each with a label. Correct number of rows for the sample data."
+      }
+    ],
+
+    "phase_8_shape_factories": [
+      {
+        "step": "8.1",
+        "action": "Implement createTrophyCup(accentColor)",
+        "change": "Create THREE.Group. Build LatheGeometry cup from profile points (Vector2 array). Build CylinderGeometry base_plate. Build PlaneGeometry plaque. Add all to group. Return group.",
+        "verify": "Call createTrophyCup(0x879094), add to scene at y=0.1. A chalice-like shape appears on the shelf."
+      },
+      {
+        "step": "8.2",
+        "action": "Implement createGlobe(accentColor)",
+        "change": "Create THREE.Group. Build SphereGeometry. Build 3 TorusGeometry rings at different rotations. Build stand pole (CylinderGeometry) and base (CylinderGeometry). Add all to group. Return group.",
+        "verify": "Call createGlobe(0x5b8a72), add to scene. A globe on a stand appears."
+      },
+      {
+        "step": "8.3",
+        "action": "Implement createScroll(accentColor)",
+        "change": "Create THREE.Group. Build horizontal CylinderGeometry body. Build two end cap cylinders. Build TorusGeometry ribbon. Build two BoxGeometry cradle supports and BoxGeometry base. Add all to group. Return group.",
+        "verify": "Call createScroll(0x8a7b5b), add to scene. A scroll on a cradle appears."
+      },
+      {
+        "step": "8.4",
+        "action": "Implement createStar(accentColor)",
+        "change": "Create THREE.Group. Build 5-pointed star: compute 10 points (alternating outer/inner radius), create THREE.Shape, ExtrudeGeometry with bevel. Build stand pole and base. Add all to group. Return group.",
+        "verify": "Call createStar(0xc4a44a), add to scene. A shiny star on a stand appears."
+      },
+      {
+        "step": "8.5",
+        "action": "Implement createShape(itemType, accentColor) dispatcher",
+        "change": "Switch on itemType: 'project' → createTrophyCup, 'mobility' → createGlobe, 'paper' → createScroll, 'reward' → createStar.",
+        "verify": "createShape('project', 0x879094) returns a trophy cup group."
+      }
+    ],
+
+    "phase_9_item_placement": [
+      {
+        "step": "9.1",
+        "action": "Implement placeItems(items, shelfMap)",
+        "change": "For each shelf row: get items for that row, sort by weight then date, calculate x spacing, call createShape() for each, set position (x, shelfY + 0.04, 0), attach userData (title, description, url, tags, itemType), randomize initial rotation.y, set scale to (0,0,0) for entrance, push to itemGroups[], add to scene.",
+        "verify": "All 4 sample items appear on their correct shelf rows. Trophy on Projects shelf, globe on Mobilities, etc."
+      },
+      {
+        "step": "9.2",
+        "action": "Wire buildShelves() and placeItems() into initScene()",
+        "change": "In initScene(), after lighting: call buildShelves(items) to get shelfMap, then call placeItems(items, shelfMap).",
+        "verify": "Full scene renders: shelves with labels, items placed correctly."
+      }
+    ],
+
+    "phase_10_texture_helpers": [
+      {
+        "step": "10.1",
+        "action": "Implement createLetterTexture(letter, bgColor)",
+        "change": "Create offscreen canvas (128x128). Fill with bgColor. Draw white letter centered. Return new THREE.CanvasTexture(canvas).",
+        "verify": "Trophy plaque shows first letter of project title."
+      },
+      {
+        "step": "10.2",
+        "action": "Implement loadImageTexture(path)",
+        "change": "Use THREE.TextureLoader to load image from path. Return texture. Handle error by falling back to letter texture.",
+        "verify": "If image path is provided in frontmatter and file exists, plaque shows image."
+      },
+      {
+        "step": "10.3",
+        "action": "Integrate textures into shape factories",
+        "change": "In each factory function, accept optional imagePath and title params. Apply texture to the plaque/face element.",
+        "verify": "Plaques show either images or letters."
+      }
+    ],
+
+    "phase_11_entrance_animation": [
+      {
+        "step": "11.1",
+        "action": "Implement easeOutBack(t) function",
+        "change": "Add the easing function: const c1 = 1.70158; const c3 = c1 + 1; return 1 + c3 * Math.pow(t - 1, 3) + c1 * Math.pow(t - 1, 2);",
+        "verify": "easeOutBack(0) === 0, easeOutBack(1) === 1, easeOutBack(0.5) > 0.5 (overshoots)"
+      },
+      {
+        "step": "11.2",
+        "action": "Add entrance animation metadata to each item group",
+        "change": "When placing items, set group.userData.entranceStartTime = performance.now() + (globalIndex * 120). Set group.userData.entranceComplete = false.",
+        "verify": "Each item group has staggered start times in userData."
+      },
+      {
+        "step": "11.3",
+        "action": "Implement updateEntranceAnimations() in animate loop",
+        "change": "For each group where !entranceComplete: calculate elapsed = now - startTime. If elapsed < 0: skip (not started). If elapsed >= 600: set scale to (1,1,1), mark complete. Else: t = elapsed/600, s = easeOutBack(t), set scale to (s,s,s).",
+        "verify": "On page load, items pop in one by one with a bounce effect, left-to-right, top-shelf-first."
+      }
+    ],
+
+    "phase_12_idle_rotation": [
+      {
+        "step": "12.1",
+        "action": "Implement updateIdleRotations() in animate loop",
+        "change": "For each group in itemGroups: if not hovered, group.rotation.y += IDLE_ROTATION_SPEED.",
+        "verify": "All items slowly spin on their Y axis. Rotation is staggered due to random initial angles."
+      }
+    ],
+
+    "phase_13_hover_interaction": [
+      {
+        "step": "13.1",
+        "action": "Initialize Raycaster and mouse Vector2 in initScene()",
+        "change": "raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2();",
+        "verify": "Variables are initialized."
+      },
+      {
+        "step": "13.2",
+        "action": "Implement findParentItemGroup(object)",
+        "change": "Walk up object.parent chain until finding an object in itemGroups[]. Return it or null.",
+        "verify": "Given a child mesh of a trophy group, returns the group."
+      },
+      {
+        "step": "13.3",
+        "action": "Implement onMouseMove(event) — raycasting only",
+        "change": "Calculate normalized mouse coords. raycaster.setFromCamera(mouse, camera). Intersect scene children (recursive). Find parent item group. Update hoveredItem. Set cursor style.",
+        "verify": "Console.log hoveredItem.userData.title on hover. Cursor changes to pointer."
+      },
+      {
+        "step": "13.4",
+        "action": "Implement updateHoverAnimation() in animate loop",
+        "change": "If hoveredItem: lerp position.y toward originalY + HOVER_LIFT, set rotation speed to HOVER_ROTATION_SPEED. For all non-hovered items: lerp back to originalY. Store originalY in userData during placement.",
+        "verify": "Hovered item lifts up smoothly. Unhovered items stay or return to shelf level."
+      },
+      {
+        "step": "13.5",
+        "action": "Attach mousemove event listener",
+        "change": "renderer.domElement.addEventListener('mousemove', onMouseMove);",
+        "verify": "Hover detection works in browser."
+      }
+    ],
+
+    "phase_14_tooltip": [
+      {
+        "step": "14.1",
+        "action": "Implement showTooltip(group)",
+        "change": "Get world position of group. Offset Y by shape height + 0.3. Project to screen coords. Set tooltip innerHTML (title, category, description, tags). Position tooltip div. Add .visible class.",
+        "verify": "Tooltip appears above hovered item with correct content."
+      },
+      {
+        "step": "14.2",
+        "action": "Implement hideTooltip()",
+        "change": "Remove .visible class from tooltip element.",
+        "verify": "Tooltip disappears when mouse leaves item."
+      },
+      {
+        "step": "14.3",
+        "action": "Wire showTooltip/hideTooltip into onMouseMove",
+        "change": "When hoveredItem changes: if new item, showTooltip(). If null, hideTooltip().",
+        "verify": "Full hover flow works: move over item → tooltip appears positioned above it → move away → tooltip fades out."
+      },
+      {
+        "step": "14.4",
+        "action": "Update tooltip position each frame",
+        "change": "In animate(), if hoveredItem, recalculate tooltip screen position (item may be rotating/lifting).",
+        "verify": "Tooltip tracks the item's position smoothly during hover lift."
+      }
+    ],
+
+    "phase_15_click": [
+      {
+        "step": "15.1",
+        "action": "Implement onClick(event)",
+        "change": "If hoveredItem exists and hoveredItem.userData.url is non-empty: window.open(url, '_blank').",
+        "verify": "Click on item with URL opens link in new tab. Click on item without URL does nothing."
+      },
+      {
+        "step": "15.2",
+        "action": "Attach click event listener",
+        "change": "renderer.domElement.addEventListener('click', onClick);",
+        "verify": "Clicking a trophy/globe/scroll/star opens the correct URL."
+      }
+    ],
+
+    "phase_16_touch": [
+      {
+        "step": "16.1",
+        "action": "Implement onTouch(event)",
+        "change": "Convert touch position to mouse coords. Raycast. If same item as last touch → open URL. If different item → show tooltip. If no item → hide tooltip. Track lastTouchedItem.",
+        "verify": "On touch device: first tap shows tooltip, second tap on same item opens URL."
+      },
+      {
+        "step": "16.2",
+        "action": "Attach touchstart event listener",
+        "change": "renderer.domElement.addEventListener('touchstart', onTouch, { passive: false });",
+        "verify": "Touch interaction works on mobile/tablet."
+      }
+    ],
+
+    "phase_17_mouse_parallax": [
+      {
+        "step": "17.1",
+        "action": "Add mouse parallax to animate loop",
+        "change": "Track normalized mouse position (updated in onMouseMove). In animate(): lerp camera.position.x toward mouseNorm.x * 0.3. Lerp camera.position.y toward baseY + mouseNorm.y * 0.15. Call camera.lookAt(lookAtTarget).",
+        "verify": "Moving mouse across page causes subtle camera shift. Scene feels slightly 3D/alive."
+      }
+    ],
+
+    "phase_18_dark_mode": [
+      {
+        "step": "18.1",
+        "action": "Implement setupDarkModeListener()",
+        "change": "window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ...). Call applyTheme() on change and on init.",
+        "verify": "Function runs without error."
+      },
+      {
+        "step": "18.2",
+        "action": "Implement updateLighting(isDark)",
+        "change": "Update ambient light color/intensity, hemisphere light sky/ground colors based on isDark boolean.",
+        "verify": "Toggle system dark mode. Lighting changes in real-time."
+      },
+      {
+        "step": "18.3",
+        "action": "Implement updateMaterials(isDark)",
+        "change": "Iterate shelfMeshes and all structural parts (base_plate, stand_pole, stand_base, etc.) of each item group. Swap their material.color between light/dark values. Do NOT change accent-colored parts.",
+        "verify": "Toggle dark mode. Shelf color and structural parts change. Accent colors (cup, sphere, scroll body, star) stay the same."
+      },
+      {
+        "step": "18.4",
+        "action": "Implement updateShelfLabels(isDark)",
+        "change": "Regenerate label canvas textures with correct text color. Update sprite material map. Set needsUpdate = true.",
+        "verify": "Labels switch text color on dark mode toggle."
+      },
+      {
+        "step": "18.5",
+        "action": "Wire dark mode setup into initScene()",
+        "change": "Call setupDarkModeListener() at the end of initScene().",
+        "verify": "Dark mode detection and switching is fully operational."
+      }
+    ],
+
+    "phase_19_responsiveness": [
+      {
+        "step": "19.1",
+        "action": "Implement onResize() with debounce",
+        "change": "On window resize (debounced 100ms): update renderer size, camera aspect ratio, updateProjectionMatrix().",
+        "verify": "Resize browser window. Canvas and scene adapt without distortion."
+      },
+      {
+        "step": "19.2",
+        "action": "Attach resize event listener in initScene()",
+        "change": "window.addEventListener('resize', debouncedOnResize);",
+        "verify": "Resize event triggers update."
+      }
+    ],
+
+    "phase_20_visibility_optimization": [
+      {
+        "step": "20.1",
+        "action": "Implement onVisibilityChange()",
+        "change": "On document 'visibilitychange': if hidden, cancelAnimationFrame. If visible, restart animate().",
+        "verify": "Switch tabs. Animation pauses (check CPU usage drops). Switch back, animation resumes."
+      },
+      {
+        "step": "20.2",
+        "action": "Attach visibilitychange listener in initScene()",
+        "change": "document.addEventListener('visibilitychange', onVisibilityChange);",
+        "verify": "Listener fires on tab switch."
+      }
+    ],
+
+    "phase_21_cleanup": [
+      {
+        "step": "21.1",
+        "action": "Implement disposeScene()",
+        "change": "Cancel animation frame. Traverse scene and dispose all geometry, material, texture. Call renderer.dispose(). Remove canvas from DOM. Remove all event listeners.",
+        "verify": "Call disposeScene() manually. No memory leaks (check devtools memory snapshot)."
+      },
+      {
+        "step": "21.2",
+        "action": "Attach beforeunload listener",
+        "change": "window.addEventListener('beforeunload', disposeScene);",
+        "verify": "Cleanup runs on page navigation."
+      }
+    ],
+
+    "phase_22_integration_testing": [
+      {
+        "step": "22.1",
+        "action": "Verify hugo server builds without errors",
+        "command": "hugo server",
+        "verify": "No build errors. /works/ page loads."
+      },
+      {
+        "step": "22.2",
+        "action": "Verify all 4 sample items render on correct shelves",
+        "verify": "Projects shelf has trophy, Mobilities has globe, Papers has scroll, Rewards has star."
+      },
+      {
+        "step": "22.3",
+        "action": "Verify entrance animation plays on page load",
+        "verify": "Items pop in one by one with bounce effect."
+      },
+      {
+        "step": "22.4",
+        "action": "Verify hover shows tooltip with correct data",
+        "verify": "Each item's tooltip shows its title, category, description, and tags."
+      },
+      {
+        "step": "22.5",
+        "action": "Verify click opens URL for items that have one",
+        "verify": "Clicking blog trophy opens GitHub link. Clicking Erasmus globe (no URL) does nothing."
+      },
+      {
+        "step": "22.6",
+        "action": "Verify dark mode switching",
+        "verify": "Toggle system theme. Scene adapts in real-time."
+      },
+      {
+        "step": "22.7",
+        "action": "Verify mobile fallback at <600px",
+        "verify": "Resize below 600px. 3D canvas hidden, 2D grid visible with correct grouping."
+      },
+      {
+        "step": "22.8",
+        "action": "Verify navigation menu shows Works link",
+        "verify": "Nav has Posts | Works | Me in correct order."
+      }
+    ]
+  },
+
+  "file_manifest": {
+    "description": "Complete list of all files to be created or modified.",
+    "create": [
+      "content/works/_index.md",
+      "content/works/personal-blog.md",
+      "content/works/erasmus-internship.md",
+      "content/works/research-paper.md",
+      "content/works/hackathon-win.md",
+      "layouts/works/list.html",
+      "layouts/partials/shelf-icon.html",
+      "static/css/trophy-shelf.css",
+      "static/js/trophy-shelf.js",
+      "static/images/works/.gitkeep"
+    ],
+    "modify": [
+      "hugo.toml"
+    ]
+  }
+}
