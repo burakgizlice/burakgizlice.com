@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>HTML on Burak Gizlice</title>
+    <link>http://localhost:1313/tags/html/</link>
+    <description>Recent content in HTML on Burak Gizlice</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 15 Jan 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/tags/html/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>burakgizlice.com</title>
+      <link>http://localhost:1313/works/personal-blog/</link>
+      <pubDate>Thu, 15 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/personal-blog/</guid>
+      <description></description>
+    </item>
+  </channel>
+</rss>

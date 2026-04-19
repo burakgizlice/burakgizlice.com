@@ -1,0 +1,22 @@
+{{ define "main" }}
+    {{ $photo := "" }}
+    {{ with resources.Get (.Site.Params.profileImage | default "profile-headshot.jpeg") }}
+        {{ $photo = (.Fill "560x560 smart").RelPermalink }}
+    {{ end }}
+
+    <main><article class="me-page h-entry">
+        <header class="me-page__header">
+            {{ with $photo }}
+                <img class="me-page__photo u-photo" src="{{ . }}" alt="{{ $.Site.Params.authorName }}" loading="eager"/>
+            {{ end }}
+            <div class="me-page__identity">
+                <h1 class="p-name me-page__name">{{ .Site.Params.authorName | default .Title }}</h1>
+                {{ with .Site.Params.role }}<p class="me-page__role">{{ . }}</p>{{ end }}
+            </div>
+        </header>
+
+        <div class="me-page__content e-content">
+            {{ .Content }}
+        </div>
+    </article></main>
+{{ end }}

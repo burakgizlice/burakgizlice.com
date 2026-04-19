@@ -1,0 +1,26 @@
+{{ define "main" }}
+    <section class="landing-hero">
+        <div class="landing-hero__inner">
+            <div class="landing-hero__body">
+                <h1 class="landing-hero__name p-name">{{ .Site.Params.authorName | default .Site.Title }}</h1>
+                {{ with .Site.Params.role }}<p class="landing-hero__role">{{ . }}</p>{{ end }}
+                {{ with .Site.Params.tagline }}<p class="landing-hero__pitch">{{ . }}</p>{{ end }}
+                {{ with .Site.Params.calcom }}
+                    <a class="landing-cta" href="{{ . }}" target="_blank" rel="noopener">
+                        {{ $.Site.Params.ctaLabel | default "Book a call" }} <span aria-hidden="true">→</span>
+                    </a>
+                {{ end }}
+            </div>
+        </div>
+    </section>
+
+    {{ $posts := where .Site.RegularPages "Section" "posts" }}
+    {{ if $posts }}
+        <main class="h-entry e-content container col">
+            <section class="recent-writing">
+                <h2>Recent writing</h2>
+                {{ partial "cards" . }}
+            </section>
+        </main>
+    {{ end }}
+{{ end }}

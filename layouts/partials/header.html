@@ -1,0 +1,16 @@
+<header>
+    <a class="site-mark" href="{{ .Site.Home.Permalink }}" aria-label="{{ .Site.Title }}">
+        <svg class="site-mark__svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <text x="32" y="44" text-anchor="middle" font-family="inherit" font-size="32" font-weight="700" fill="currentColor" letter-spacing="-1">bg</text>
+        </svg>
+    </a>
+    <nav class="menu">
+        <ul>
+            {{- range site.Menus.main }}
+                <li>
+                    <a href="{{ .URL }}">{{ .Name }}</a>
+                </li>
+            {{- end }}
+        </ul>
+    </nav>
+</header>

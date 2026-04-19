@@ -22,8 +22,12 @@ summaryLength = 30
   numImages = 10
   useToc = true
   authorName = "Burak Gizlice"
-  authorImage = "https://github.com/burakgizlice.png"
-  contact = "You can write me an [email](mailto:gizliceburak@gmail.com)."
+  role = "DevOps Engineer · Cloud Infrastructure"
+  tagline = "I help SMBs and startup teams ship faster by containerizing apps, setting up CI/CD, and deploying to the cloud. Mostly AWS, with Terraform, Docker, and GitHub Actions."
+  calcom = "https://cal.com/burak-gizlice/discovery"
+  ctaLabel = "Book a free discovery call"
+  profileImage = "profile-headshot.jpeg"
+  contact = "Prefer email? Write me at [gizliceburak@gmail.com](mailto:gizliceburak@gmail.com)."
 
   [params.giscus]
     repo = "burakgizlice/burakgizlice.com"
@@ -38,6 +42,16 @@ summaryLength = 30
     lang = "en"
 
   [[params.social]]
+    url = "https://wa.me/905335008015?text=Hi%20Burak%2C%20I%27d%20like%20to%20inquire%20about%20your%20DevOps%20services."
+    icon = "/social/whatsapp.svg"
+    name = "WhatsApp"
+
+  [[params.social]]
+    url = "https://t.me/+905335008015"
+    icon = "/social/telegram.svg"
+    name = "Telegram"
+
+  [[params.social]]
     url = "https://linkedin.com/in/burakgizlice"
     icon = "/social/linkedin.svg"
     name = "LinkedIn"
@@ -49,7 +63,7 @@ summaryLength = 30
 
   [[params.social]]
     url = "mailto:gizliceburak@gmail.com"
-    icon = "/social/email.png"
+    icon = "/social/email.svg"
     name = "Email"
 
 [menu]

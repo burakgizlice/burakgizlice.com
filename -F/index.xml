@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Burak Gizlice</title>
+    <link>http://localhost:1313/</link>
+    <description>Recent content on Burak Gizlice</description>
+    <generator>Hugo</generator>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 15 Jan 2026 00:00:00 +0000</lastBuildDate>
+    <atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>burakgizlice.com</title>
+      <link>http://localhost:1313/works/personal-blog/</link>
+      <pubDate>Thu, 15 Jan 2026 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/personal-blog/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>DevOps Meetup Talk</title>
+      <link>http://localhost:1313/works/meetup-talk/</link>
+      <pubDate>Sat, 15 Nov 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/meetup-talk/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>NLP Conference Paper</title>
+      <link>http://localhost:1313/works/nlp-paper/</link>
+      <pubDate>Thu, 10 Jul 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/nlp-paper/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Real-time Chat</title>
+      <link>http://localhost:1313/works/chat-app/</link>
+      <pubDate>Sat, 01 Feb 2025 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/chat-app/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Hackathon 1st Place</title>
+      <link>http://localhost:1313/works/hackathon-win/</link>
+      <pubDate>Wed, 20 Nov 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/hackathon-win/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Computer Vision Paper</title>
+      <link>http://localhost:1313/works/cv-paper/</link>
+      <pubDate>Sat, 05 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/cv-paper/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Sample Research Paper</title>
+      <link>http://localhost:1313/works/research-paper/</link>
+      <pubDate>Sat, 15 Jun 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/research-paper/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>CLI Tool</title>
+      <link>http://localhost:1313/works/cli-tool/</link>
+      <pubDate>Tue, 12 Mar 2024 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/cli-tool/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Dean&#39;s List</title>
+      <link>http://localhost:1313/works/dean-list/</link>
+      <pubDate>Sat, 30 Dec 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/dean-list/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Summer School Berlin</title>
+      <link>http://localhost:1313/works/summer-school/</link>
+      <pubDate>Sat, 15 Jul 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/summer-school/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Erasmus&#43; Internship</title>
+      <link>http://localhost:1313/works/erasmus-internship/</link>
+      <pubDate>Thu, 01 Jun 2023 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/erasmus-internship/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Coding Contest 2nd Place</title>
+      <link>http://localhost:1313/works/coding-contest/</link>
+      <pubDate>Mon, 05 Sep 2022 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/coding-contest/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>ML Pipeline</title>
+      <link>http://localhost:1313/works/ml-pipeline/</link>
+      <pubDate>Wed, 20 Apr 2022 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/ml-pipeline/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Mobile App</title>
+      <link>http://localhost:1313/works/mobile-app/</link>
+      <pubDate>Wed, 10 Nov 2021 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/mobile-app/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>API Gateway</title>
+      <link>http://localhost:1313/works/api-gateway/</link>
+      <pubDate>Fri, 18 Jun 2021 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/api-gateway/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Exchange Semester</title>
+      <link>http://localhost:1313/works/exchange-semester/</link>
+      <pubDate>Wed, 20 Jan 2021 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/works/exchange-semester/</guid>
+      <description></description>
+    </item>
+    <item>
+      <title>Me</title>
+      <link>http://localhost:1313/me/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      <guid>http://localhost:1313/me/</guid>
+      <description>&lt;p&gt;I&amp;rsquo;m Burak. Wrapping up my Computer Engineering degree at Alanya Alaaddin Keykubat University, thesis only. I support my own university and help other small businesses and startup teams ship their software faster and worry less about it breaking. Usually that means Docker, CI/CD pipelines, and AWS infrastructure built with Terraform.&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>

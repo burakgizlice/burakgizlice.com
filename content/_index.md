@@ -1,4 +1,4 @@
 ---
 title: "Burak Gizlice"
-description: "Software engineer. I build systems, automate workflows, and make infra reliable."
+description: "DevOps engineer helping SMBs and startup teams ship faster with Docker, CI/CD, Terraform, and AWS."
 ---

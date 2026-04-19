@@ -16,8 +16,8 @@
 </div>
 
 <div class="trophy-fallback">
-  {{ $categories := slice "reward" "paper" "mobility" "project" }}
-  {{ $labels := dict "reward" "Rewards" "paper" "Papers" "mobility" "Mobilities" "project" "Projects" }}
+  {{ $categories := slice "milestone" "community" "paper" "mobility" "project" }}
+  {{ $labels := dict "milestone" "Milestones" "community" "Community" "paper" "Papers" "mobility" "Mobilities" "project" "Projects" }}
   {{ range $cat := $categories }}
     {{ $items := where $.Pages "Params.item_type" $cat }}
     {{ if $items }}
@@ -25,7 +25,8 @@
         <h3 class="fallback-category-title">{{ index $labels $cat }}</h3>
         <div class="fallback-grid">
           {{ range $items.ByDate.Reverse }}
-            <a class="fallback-card" {{ with .Params.link }}href="{{ . }}" target="_blank"{{ end }}>
+            {{ $href := .Permalink }}{{ $external := false }}{{ with .Params.link }}{{ $href = . }}{{ $external = true }}{{ end }}
+            <a class="fallback-card" href="{{ $href }}"{{ if $external }} target="_blank" rel="noopener"{{ end }}>
               <div class="fallback-icon">{{ partial "shelf-icon" $cat }}</div>
               <strong class="fallback-title">{{ .Title }}</strong>
               <p class="fallback-desc">{{ .Description }}</p>
@@ -46,7 +47,8 @@
     {
       title: {{ .Title | jsonify | safeJS }},
       description: {{ .Description | jsonify | safeJS }},
-      url: {{ .Params.link | default "" | jsonify | safeJS }},
+      url: {{ .Params.link | default .Permalink | jsonify | safeJS }},
+      externalLink: {{ if .Params.link }}true{{ else }}false{{ end }},
       image: {{ .Params.image | default "" | jsonify | safeJS }},
       tags: {{ .Params.tags | default slice | jsonify | safeJS }},
       itemType: {{ .Params.item_type | jsonify | safeJS }},

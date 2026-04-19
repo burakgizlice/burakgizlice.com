@@ -1,0 +1,25 @@
+<footer>
+    <div class="social-media">
+        {{ range site.Params.social}}
+            <a href="{{ .url }}"><img alt="{{ .name }}" src="{{ .icon }}"/></a>
+        {{ end }}
+    </div>
+    <div class="site-credit">
+        <a class="site-mark site-mark--sm" href="{{ .Site.Home.Permalink }}" aria-label="{{ .Site.Title }}">
+            <svg class="site-mark__svg" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+                <text x="32" y="44" text-anchor="middle" font-family="inherit" font-size="32" font-weight="700" fill="currentColor" letter-spacing="-1">bg</text>
+            </svg>
+        </a>
+        <p>© {{ now.Format "2006" }} {{ .Site.Title }}</p>
+    </div>
+    <nav>
+        <ul>
+            {{- range site.Menus.main }}
+                <li>
+                    <a href="{{ .URL }}">{{ .Name }}</a>
+                </li>
+            {{- end }}
+        </ul>
+    </nav>
+    {{ partial "search-index.html" . }}
+</footer>
